@@ -13,7 +13,7 @@ Record these before modelling:
 | Access | From which sides must objects and cables enter or leave? |
 | Orientation | Which face sits on the bed, base, wall, or table? |
 | Edge treatment | Which edges qualify for a chamfer/fillet proposal (see criteria below), and which is the right kind for each? |
-| Symmetry | Is this part one of an inherently mirrored left/right (or front/back) pair? If yes, does the delivery need both mirrored copies, or is a single side intentional? |
+| Repetition | Does one shape appear more than once (a mirrored pair, or N placed copies like rover wheels, table legs, screw bosses)? If yes, how many, and at what position/rotation/mirror does each copy sit? |
 
 Not every edge is a candidate. Use this to decide where to propose a treatment and where to say nothing:
 
@@ -32,9 +32,22 @@ Propose nothing (skip silently) for:
 
 For each edge where a treatment is proposed: a chamfer prints faster and rarely needs support, but feels sharper to the touch; a fillet is more comfortable and spreads stress better, but is sensitive to the printer's minimum feature radius and can need support on steep edges. Record the chosen kind and size as a named parameter per edge group (e.g. `edge_chamfer` or `edge_fillet_r`), the same way plan and profile radii are named.
 
-When a part is an inherently mirrored pair and only one side was modelled, mirror it via a `Placement`/`Mirror` transform rather than hand-remodelling the other side, and deliver both as separate named STEP/STL components — consistent with not fusing logical assembly components into one anonymous body.
+When one shape is placed more than once — a mirrored pair, or an N-way pattern like 4 rover wheels — model it once and generate every copy from an `instances` list in `parameters.json` (name, position, rotation axis/angle, optional mirror normal), applied through the `add_instances` helper in [assets/freecad-parametric-template.FCMacro](../assets/freecad-parametric-template.FCMacro). Never hand-duplicate or hand-rotate geometry per copy — a wrong rotation typed twice is a common source of the "correct angle, wrong sign" trap. Deliver every instance as its own separate named STEP/STL component, consistent with not fusing logical assembly components into one anonymous body.
 
 Use measured hardware dimensions when available. Keep nominal dimensions and allowance separate. Treat generic FDM clearance numbers only as starting points; test-fit coupons are mandatory for expensive or long prints.
+
+### Heat-set insert hole sizing (starting point, not a fixed spec)
+
+When a part takes a machine screw via a heat-set insert, size the pilot hole and boss from these typical ranges, then verify against the specific insert's datasheet — inserts of the same thread size vary in outer diameter and knurl geometry across brands:
+
+| Thread | Typical pilot hole | Typical insert OD |
+| --- | --- | --- |
+| M2 | 3.0–3.2 mm | 3.2–3.5 mm |
+| M3 | 4.0 mm | 4.0–4.6 mm |
+| M4 | 5.6 mm | 5.6–6.3 mm |
+| M5 | 6.4 mm | 6.4–7.1 mm |
+
+Boss outer diameter: pilot hole + 2× minimum wall thickness (1.2–1.6 mm is a common starting wall for the boss, same `min_wall` parameter used elsewhere). FDM holes commonly print slightly undersized (nozzle over-extrudes on tight curves); a test-fit coupon is the reliable way to confirm the pilot hole before committing to the full print, consistent with the test-coupon rule above.
 
 ## 2. Preliminary three-view drawing
 

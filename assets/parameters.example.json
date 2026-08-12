@@ -17,5 +17,11 @@
     "block_y": 10.0,
     "block_z": 6.0,
     "block_rotate_x": 0.0
-  }
+  },
+  "instances": [
+    {"name": "Wheel_FL", "label": "Front-left wheel", "xyz": [-40, 35, 8], "rotate_axis": [0, 0, 1], "rotate_deg": 0},
+    {"name": "Wheel_FR", "label": "Front-right wheel", "xyz": [-40, -35, 8], "rotate_axis": [0, 0, 1], "rotate_deg": 180, "mirror_normal": [0, 1, 0]},
+    {"name": "Wheel_RL", "label": "Rear-left wheel", "xyz": [40, 35, 8], "rotate_axis": [0, 0, 1], "rotate_deg": 0},
+    {"name": "Wheel_RR", "label": "Rear-right wheel", "xyz": [40, -35, 8], "rotate_axis": [0, 0, 1], "rotate_deg": 180, "mirror_normal": [0, 1, 0]}
+  ]
 }

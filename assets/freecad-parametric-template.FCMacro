@@ -17,18 +17,42 @@ with open(PARAMETERS_PATH, "r", encoding="utf-8") as f:
 PARAMS = {**PARAMETER_DOC["nominal"], **PARAMETER_DOC["clearances"], **PARAMETER_DOC["derived"]}
 
 
-def add_block(doc, assembly, name, label, shape, xyz, rotate_x=0.0):
+def add_block(doc, assembly, name, label, shape, xyz, rotate_axis=(1, 0, 0), rotate_deg=0.0, mirror_normal=None):
+    if mirror_normal is not None:
+        shape = shape.mirror(App.Vector(0, 0, 0), App.Vector(*mirror_normal))
     obj = doc.addObject("PartDesign::Feature", name)
     obj.Label = label
     obj.Shape = shape
     obj.addProperty("App::PropertyVector", "Move", "Assembly").Move = App.Vector(*xyz)
-    obj.addProperty("App::PropertyAngle", "RotateX", "Assembly").RotateX = rotate_x
+    obj.addProperty("App::PropertyVector", "RotateAxis", "Assembly").RotateAxis = App.Vector(*rotate_axis)
+    obj.addProperty("App::PropertyAngle", "RotateDeg", "Assembly").RotateDeg = rotate_deg
     obj.Placement = App.Placement(
         App.Vector(*xyz),
-        App.Rotation(App.Vector(1, 0, 0), rotate_x),
+        App.Rotation(App.Vector(*rotate_axis), rotate_deg),
     )
     assembly.addObject(obj)
     return obj
+
+
+def add_instances(doc, assembly, base_shape, instances):
+    """Place one modelled shape at every entry of parameters.json's "instances"
+    list (e.g. 4 rover wheels, table legs, screw bosses) — model once, never
+    hand-duplicate or hand-rotate geometry per copy. Each entry:
+    {"name", "label", "xyz", "rotate_axis" (default [0,0,1]),
+     "rotate_deg" (default 0), "mirror_normal" (optional, e.g. [0,1,0])}.
+    """
+    return [
+        add_block(
+            doc, assembly,
+            spec["name"], spec.get("label", spec["name"]),
+            base_shape,
+            spec["xyz"],
+            rotate_axis=spec.get("rotate_axis", (0, 0, 1)),
+            rotate_deg=spec.get("rotate_deg", 0.0),
+            mirror_normal=spec.get("mirror_normal"),
+        )
+        for spec in instances
+    ]
 
 
 doc = App.newDocument("ParametricPrintablePart")
@@ -61,8 +85,16 @@ block = add_block(
     "02 Functional block",
     block_shape,
     (p["block_x"], p["block_y"], p["block_z"]),
-    p["block_rotate_x"],
+    rotate_axis=(1, 0, 0),
+    rotate_deg=p["block_rotate_x"],
 )
+
+# Example: repeated-block pattern (e.g. 4 rover wheels, table legs, screw
+# bosses) — model the shape once, then place every copy from parameters.json's
+# "instances" list. Delete this block if the task has no repeated feature.
+if "instances" in PARAMETER_DOC:
+    wheel_shape = Part.makeCylinder(p.get("wheel_r", 20.0), p.get("wheel_w", 10.0))
+    wheels = add_instances(doc, assembly, wheel_shape, PARAMETER_DOC["instances"])
 
 doc.recompute()
 Gui.activeDocument().activeView().viewAxonometric()

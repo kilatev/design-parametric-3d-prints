@@ -130,6 +130,29 @@ def mesh_topology(triangles, tolerance):
     return non_manifold, flipped, components
 
 
+def overhang_angle_deg(tri):
+    """Angle from vertical (0 = vertical wall, 90 = flat downward-facing ceiling)
+    for a downward-facing triangle, or None if the triangle faces up/sideways.
+    Convention: only downward-facing normals (nz < 0) are overhangs at all;
+    a vertical wall is never flagged regardless of the chosen threshold.
+    """
+    a, b, c = tri
+    u = [b[i] - a[i] for i in range(3)]
+    v = [c[i] - a[i] for i in range(3)]
+    cross = (
+        u[1] * v[2] - u[2] * v[1],
+        u[2] * v[0] - u[0] * v[2],
+        u[0] * v[1] - u[1] * v[0],
+    )
+    length = math.sqrt(sum(x * x for x in cross))
+    if length <= 0:
+        return None
+    nz = cross[2] / length
+    if nz >= 0:
+        return None
+    return math.degrees(math.asin(min(1.0, abs(nz))))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("stl", type=Path)
@@ -142,6 +165,8 @@ def main():
     parser.add_argument("--empty-region", type=parse_region, action="append", default=[])
     parser.add_argument("--expect-components", type=int)
     parser.add_argument("--allow-non-manifold", action="store_true")
+    parser.add_argument("--max-overhang", type=float, help="degrees from vertical; flag downward-facing triangles steeper than this")
+    parser.add_argument("--bed-size", type=parse_triplet, help="X,Y,Z build volume; flags a model that doesn't fit")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -164,6 +189,19 @@ def main():
         ]
 
     non_manifold_edges, flipped_normal_edges, components = mesh_topology(triangles, args.tolerance)
+
+    overhang_triangles = 0
+    max_overhang_seen = 0.0
+    if args.max_overhang is not None:
+        for tri in triangles:
+            centroid_z = sum(v[2] for v in tri) / 3
+            if centroid_z <= args.bed_z + args.tolerance:
+                continue  # resting on the bed, not a floating overhang
+            angle = overhang_angle_deg(tri)
+            if angle is not None:
+                max_overhang_seen = max(max_overhang_seen, angle)
+                if angle > args.max_overhang:
+                    overhang_triangles += 1
 
     region_hits = []
     for region in args.empty_region:
@@ -199,6 +237,15 @@ def main():
         failures.append(f"{flipped_normal_edges} edges with inconsistent winding (flipped normals)")
     if args.expect_components is not None and components != args.expect_components:
         failures.append(f"{components} connected components, expected {args.expect_components}")
+    if args.max_overhang is not None and overhang_triangles:
+        failures.append(
+            f"{overhang_triangles} downward-facing triangles exceed {args.max_overhang}° from vertical "
+            f"(steepest {max_overhang_seen:.1f}°) — face-angle only, doesn't know if a wedge/support already sits under it"
+        )
+    if args.bed_size is not None:
+        for axis, actual, limit in zip("XYZ", size, args.bed_size):
+            if actual > limit + args.tolerance:
+                failures.append(f"size {axis}={actual:.4f} exceeds build volume {limit:.4f}")
 
     result = {
         "file": str(args.stl),
@@ -216,6 +263,8 @@ def main():
         "non_manifold_edges": non_manifold_edges,
         "flipped_normal_edges": flipped_normal_edges,
         "connected_components": components,
+        "overhang_triangles": overhang_triangles if args.max_overhang is not None else None,
+        "max_overhang_seen_deg": max_overhang_seen if args.max_overhang is not None else None,
         "failures": failures,
     }
     if args.json:

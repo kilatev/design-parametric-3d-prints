@@ -56,6 +56,7 @@ Create fabrication-ready parametric CAD, not merely a plausible render. Freeze t
 - Apply cuts for pockets, drainage, and cables after the relevant solids are united. A channel that only cuts the visible plate but not its shelf or support is incomplete.
 - Preserve open access when requested. Removing side cheeks means deleting their solids, not merely hiding them in a drawing.
 - Do not fuse logical assembly components in the editable STEP or FreeCAD model unless the user asks for one body. A print-ready STL may contain overlapping shells that the slicer unions.
+- When one shape is placed more than once (a mirrored pair, or an N-way pattern like 4 rover wheels, table legs, or screw bosses), model it once and place every copy from an `instances` list in `parameters.json`, using the `add_instances` helper in [assets/freecad-parametric-template.FCMacro](assets/freecad-parametric-template.FCMacro) — see [references/engineering-checklist.md](references/engineering-checklist.md) §1 "Repetition". Never hand-duplicate or hand-rotate geometry per copy.
 - Never disguise a mesh as STEP. STEP must contain BREP geometry and named products/components.
 
 ## Tool and format selection
@@ -81,7 +82,7 @@ Use [assets/freecad-parametric-template.FCMacro](assets/freecad-parametric-templ
 
 Do not deliver after only checking that files exist.
 
-Run [scripts/validate_stl.py](scripts/validate_stl.py) on each print-ready STL. Assert expected size, bed plane, absence of vertices below the bed, and required bed-contact span when those values are known. Use `--empty-region` to prove that requested openings or removed walls are actually empty.
+Run [scripts/validate_stl.py](scripts/validate_stl.py) on each print-ready STL. Assert expected size, bed plane, absence of vertices below the bed, and required bed-contact span when those values are known. Use `--empty-region` to prove that requested openings or removed walls are actually empty. Use `--bed-size` to confirm the model fits the declared printer's build volume, and `--max-overhang` to flag downward-facing triangles steeper than the given angle from vertical — this checks face angle only, not whether a wedge/support already sits underneath, so review flagged triangles rather than treating a pass/fail as final.
 
 Run [scripts/validate_step.py](scripts/validate_step.py) on each STEP assembly. Require the STEP terminator, BREP solids, and every expected component name.
 
@@ -117,6 +118,19 @@ If a check fails, revise the geometry and regenerate every dependent deliverable
 - Re-export and revalidate STEP, STL, source, and drawing together.
 - Generate a `manifest.json` (revision, units, approved drawing, and the source/STEP/STL filenames) alongside the deliverables so no file from a stale revision can be mistaken for current. Validate it with [scripts/validate_manifest.py](scripts/validate_manifest.py).
 - Lead the handoff with the verified outcome and direct file links.
+
+## Handoff
+
+When compacting this task's context for a fresh session (e.g. via a `/handoff`-style skill), capture at least:
+
+- the current `parameters.json` revision and its file path — link to it, do not restate its values from memory;
+- approval-gate status: is the current revision's preliminary/final drawing approved, pending, or not yet presented;
+- which validators have actually been run and passed for this revision (`validate_stl.py`, `validate_step.py`, `validate_dxf.py`, `validate_projections.py`, `validate_manifest.py`) and which are still outstanding;
+- key judgment calls made so far — chamfer/fillet choice per edge group, any mirror/instance placements — one line each with the reason, not a re-derivation (see [references/engineering-checklist.md](references/engineering-checklist.md) §1 for the full criteria);
+- the output directory and `manifest.json` path;
+- environment notes worth not re-discovering: whether `FreeCADCmd`/FreeCAD Python was available, and which preview-rendering tools (e.g. `convert`, `openscad`) were confirmed installed.
+
+A summary that drops the approval-gate status or the validator pass/fail state risks the next session either redoing already-approved work or skipping a gate that was never actually cleared.
 
 ## Communication
 
