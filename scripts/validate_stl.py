@@ -45,6 +45,8 @@ def load_ascii(data: bytes):
 
 def load_stl(path: Path):
     data = path.read_bytes()
+    if data.lstrip(b" \t\r\n")[:5].lower() == b"solid":
+        return load_ascii(data)
     try:
         return load_binary(data)
     except (ValueError, struct.error):

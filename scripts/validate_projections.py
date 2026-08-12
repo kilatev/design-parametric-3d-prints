@@ -16,7 +16,6 @@ import math
 from pathlib import Path
 
 COORD_CODES = {10, 11, 12, 13, 20, 21, 22, 23, 30, 31, 32, 33}
-XY_CODES = {(10, 0), (11, 0), (20, 1), (21, 1)}
 
 
 def parse_pairs(path: Path) -> list[tuple[int, str]]:

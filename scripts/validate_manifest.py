@@ -19,8 +19,17 @@ def main() -> int:
     args = parser.parse_args()
 
     failures: list[str] = []
-    manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-    base = args.manifest.parent
+    try:
+        manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"FAIL: could not read manifest: {exc}")
+    base = args.manifest.parent.resolve()
+
+    def resolve_within_base(relative: str) -> Path | None:
+        candidate = (base / relative).resolve()
+        if not candidate.is_relative_to(base):
+            return None
+        return candidate
 
     for field in REQUIRED_TOP_LEVEL:
         if field not in manifest:
@@ -31,13 +40,19 @@ def main() -> int:
         if key not in files:
             failures.append(f"files.{key} is missing from manifest")
             continue
-        path = base / files[key]
-        if not path.exists():
+        path = resolve_within_base(files[key])
+        if path is None:
+            failures.append(f"files.{key} escapes manifest directory: {files[key]}")
+        elif not path.exists():
             failures.append(f"files.{key} does not exist: {path}")
 
     approved = manifest.get("approved_drawing")
-    if approved and not (base / approved).exists():
-        failures.append(f"approved_drawing does not exist: {base / approved}")
+    if approved:
+        approved_path = resolve_within_base(approved)
+        if approved_path is None:
+            failures.append(f"approved_drawing escapes manifest directory: {approved}")
+        elif not approved_path.exists():
+            failures.append(f"approved_drawing does not exist: {approved_path}")
 
     if args.expect_revision and manifest.get("revision") != args.expect_revision:
         failures.append(f"revision {manifest.get('revision')!r} does not match expected {args.expect_revision!r}")

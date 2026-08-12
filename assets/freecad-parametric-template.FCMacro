@@ -14,6 +14,13 @@ PARAMETERS_PATH = Path(os.environ.get("PARAMETERS_JSON", Path(__file__).with_nam
 with open(PARAMETERS_PATH, "r", encoding="utf-8") as f:
     PARAMETER_DOC = json.load(f)
 
+_sections = ("nominal", "clearances", "derived")
+_dupes = set(PARAMETER_DOC.get(_sections[0], {})) & set(PARAMETER_DOC.get(_sections[1], {}))
+_dupes |= set(PARAMETER_DOC.get(_sections[0], {})) & set(PARAMETER_DOC.get(_sections[2], {}))
+_dupes |= set(PARAMETER_DOC.get(_sections[1], {})) & set(PARAMETER_DOC.get(_sections[2], {}))
+if _dupes:
+    raise ValueError(f"parameter key(s) {sorted(_dupes)} appear in more than one of nominal/clearances/derived")
+
 PARAMS = {**PARAMETER_DOC["nominal"], **PARAMETER_DOC["clearances"], **PARAMETER_DOC["derived"]}
 
 

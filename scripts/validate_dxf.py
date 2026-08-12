@@ -61,6 +61,15 @@ def first(data: list[tuple[int, str]], code: int) -> str | None:
     return next((value for item_code, value in data if item_code == code), None)
 
 
+def tables_section(pairs: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    for index in range(len(pairs) - 1):
+        if pairs[index] == (0, "SECTION") and pairs[index + 1] == (2, "TABLES"):
+            start = index + 2
+            end = next((i for i in range(start, len(pairs)) if pairs[i] == (0, "ENDSEC")), len(pairs))
+            return pairs[start:end]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("dxf", type=Path)
@@ -83,7 +92,11 @@ def main() -> int:
     geometry_types = {"LINE", "LWPOLYLINE", "POLYLINE", "ARC", "CIRCLE", "ELLIPSE", "SPLINE"}
     geometry_count = sum(counts[kind] for kind in geometry_types)
     entity_layers = {first(data, 8) for _, data in records}
-    declared_layers = {value for index, (code, value) in enumerate(pairs) if code == 2 and index > 0 and pairs[index - 1] == (0, "LAYER")}
+    table_pairs = tables_section(pairs)
+    declared_layers = {
+        value for index, (code, value) in enumerate(table_pairs)
+        if code == 2 and index > 0 and table_pairs[index - 1] == (0, "LAYER")
+    }
     layers = {layer for layer in entity_layers | declared_layers if layer}
     texts = [first(data, 1) or "" for kind, data in records if kind in {"TEXT", "MTEXT"}]
     units = value_after(pairs, "$INSUNITS", 70)

@@ -18,6 +18,9 @@ def flatten(doc: dict) -> dict:
     for section in SECTIONS:
         for key, value in doc.get(section, {}).items():
             flat[f"{section}.{key}"] = value
+    for instance in doc.get("instances", []):
+        name = instance.get("name", "?")
+        flat[f"instances.{name}"] = instance
     return flat
 
 
