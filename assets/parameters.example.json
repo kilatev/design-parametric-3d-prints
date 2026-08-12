@@ -1,0 +1,21 @@
+{
+  "revision": "R1",
+  "units": "mm",
+  "nominal": {
+    "base_w": 100.0,
+    "base_d": 80.0,
+    "base_h": 6.0,
+    "block_w": 30.0,
+    "block_d": 20.0,
+    "block_h": 40.0
+  },
+  "clearances": {
+    "sliding_clearance": 0.3
+  },
+  "derived": {
+    "block_x": 10.0,
+    "block_y": 10.0,
+    "block_z": 6.0,
+    "block_rotate_x": 0.0
+  }
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deferred: Strength/load check</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
+h1{font-size:1.4rem}
+code{background:#f2f2f2;padding:.15rem .35rem;border-radius:4px;font-size:.9em}
+.why{border-left:3px solid #999;padding-left:.75rem;color:#444}
+</style>
+</head>
+<body>
+<h1>Deferred: Strength / load check</h1>
+
+<h2>Idea</h2>
+<p>Before modelling a load-bearing part (phone holder, wall mount, tool holder), record as parameters: load direction, estimated weight, load arm/lever length, print layer orientation relative to load, safety factor, and minimum wedge/rib thickness derived from that factor.</p>
+
+<h2 class="why">Why deferred</h2>
+<p>This is a structural-engineering estimate (bending stress vs. layer adhesion strength), not a geometry check a short script can verify generically — it needs material-specific strength data and a real beam/cantilever calculation per part shape. Building a generic "safety factor" field without the calculation behind it would be a fake abstraction: config for a number nobody computes.</p>
+
+<h2>When to build it</h2>
+<p>When an actual load-bearing part fails in use (cracks, sags, layer-separates), or before printing a part where failure would be costly/dangerous (long cantilever, wall-mounted weight).</p>
+
+<h2>What it would touch</h2>
+<ul>
+<li><code>references/engineering-checklist.md</code> §1 "Requirements contract" — add load direction/weight/arm as required questions for load-bearing parts specifically (not all parts).</li>
+<li>A short reference note with layer-orientation-vs-load rules of thumb (load along layers is weaker than across), not a full FEA integration.</li>
+</ul>
+</body>
+</html>

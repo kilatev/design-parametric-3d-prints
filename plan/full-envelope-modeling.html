@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deferred: Full-envelope modeling</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
+h1{font-size:1.4rem}
+code{background:#f2f2f2;padding:.15rem .35rem;border-radius:4px;font-size:.9em}
+.why{border-left:3px solid #999;padding-left:.75rem;color:#444}
+</style>
+</head>
+<body>
+<h1>Deferred: Full-envelope modeling</h1>
+
+<h2>Idea</h2>
+<p>Model the complete inserted object's envelope, not just its nominal width/diameter: phone + case, connector + cable body, cable bend radius, grip/clip protrusion, and finger clearance needed to remove the part. Surface these as extra parameters (e.g. <code>case_thickness</code>, <code>cable_bend_radius</code>, <code>finger_clearance</code>) so the preliminary drawing shows the real fit, not just the bare object.</p>
+
+<h2 class="why">Why deferred</h2>
+<p><code>references/engineering-checklist.md</code> §1 already asks "what nominal width... must fit" and §2 already requires showing "object-fit envelopes and clearances, not only the plastic around them" — this is largely already covered by existing process. What's missing is task-specific: it only matters for parts that actually hold a case/connector/cable, and the extra parameters differ per object. A generic schema field would mostly go unused.</p>
+
+<h2>When to build it</h2>
+<p>If a delivered part repeatedly turns out too tight because a case or connector body wasn't accounted for — i.e. after it causes a real revision, not preemptively.</p>
+
+<h2>What it would touch</h2>
+<ul>
+<li><code>references/engineering-checklist.md</code> §1 — add explicit prompts for "object + accessory (case/cable/connector)" envelope when the object has one.</li>
+<li>Per-task <code>parameters.json</code> — add the extra envelope dimensions inline (no schema change needed; the schema is already open).</li>
+</ul>
+</body>
+</html>

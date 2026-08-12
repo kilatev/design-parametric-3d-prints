@@ -1,0 +1,14 @@
+interface:
+  display_name: Parametric 3D Print Designer
+  short_description: Plan in SVG and DXF, then build printable CAD
+  default_prompt: Use $design-parametric-3d-prints to create approved three-view SVG
+    and 1:1 DXF drawings before building and validating the parametric 3D model.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

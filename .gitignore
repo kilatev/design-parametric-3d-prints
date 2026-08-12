@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+
+*.FCStd1
+*.FCBak
+
+.DS_Store

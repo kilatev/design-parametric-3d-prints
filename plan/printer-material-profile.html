@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deferred: Printer/material profile</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
+h1{font-size:1.4rem}
+code,pre{background:#f2f2f2;padding:.15rem .35rem;border-radius:4px;font-size:.9em}
+pre{padding:.75rem;overflow-x:auto}
+.why{border-left:3px solid #999;padding-left:.75rem;color:#444}
+</style>
+</head>
+<body>
+<h1>Deferred: Printer / material profile</h1>
+
+<h2>Idea</h2>
+<p>Add named profiles (e.g. <code>printer_profiles.json</code>) capturing per-printer/material limits so the skill can pick clearances, wall thickness, and support rules automatically:</p>
+<pre>{
+  "printer": "Creality K1",
+  "nozzle": 0.4,
+  "material": "PETG",
+  "layer_height": 0.2,
+  "max_overhang": 50,
+  "max_bridge": 15,
+  "min_wall": 1.2,
+  "sliding_clearance": 0.3,
+  "hole_compensation": 0.2,
+  "elephant_foot": 0.2
+}</pre>
+
+<h2 class="why">Why deferred</h2>
+<p>Only one printer/material combination is in use today. A profile file is config for a value that doesn't currently vary — adding it now is a config surface with a single caller, which is exactly the kind of unrequested abstraction the skill's own construction rules warn against. The existing <code>parameters.json</code> (see <code>assets/parameters.example.json</code>) already carries a <code>clearances</code> section that covers today's need.</p>
+
+<h2>When to build it</h2>
+<p>Once a second printer or material is actually in rotation, or the same clearance/wall numbers start getting hand-copied across multiple parts.</p>
+
+<h2>What it touches</h2>
+<ul>
+<li><code>assets/parameters.example.json</code> — add an optional <code>printer_profile</code> reference field.</li>
+<li><code>assets/freecad-parametric-template.FCMacro</code> — load the referenced profile and merge its clearance defaults under user-supplied <code>clearances</code>.</li>
+<li><code>SKILL.md</code> §"Tool and format selection" — document how a profile is selected/overridden.</li>
+</ul>
+</body>
+</html>

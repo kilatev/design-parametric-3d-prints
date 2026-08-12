@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deferred: Slicer pre-check</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
+h1{font-size:1.4rem}
+code{background:#f2f2f2;padding:.15rem .35rem;border-radius:4px;font-size:.9em}
+.why{border-left:3px solid #999;padding-left:.75rem;color:#444}
+</style>
+</head>
+<body>
+<h1>Deferred: Slicer pre-check step</h1>
+
+<h2>Idea</h2>
+<p>Add a final delivery step: import the STL into an actual slicer (headless CLI, e.g. PrusaSlicer/OrcaSlicer), confirm no auto-generated supports appear where none were designed, check first-layer footprint, flag thin walls, estimate print time/material, and optionally export a sliceable <code>.3mf</code> project.</p>
+
+<h2 class="why">Why deferred</h2>
+<p>This duplicates work the slicer already does well, and wiring a specific slicer's CLI into this skill is an environment dependency (a new tool to install/version, per the ladder's "already-installed dependency" rung — none is installed here) for a check that's easy for the user to run themselves in 30 seconds by opening their usual slicer. The skill's own STL validator already catches the geometry-side failures that would cause unwanted supports (non-manifold edges, floating shells, missing bed contact).</p>
+
+<h2>When to build it</h2>
+<p>If slicer CLI automation becomes available in the environment and repeated manual re-slicing turns out to be the actual bottleneck.</p>
+
+<h2>What it would touch</h2>
+<ul>
+<li>A new optional script, e.g. <code>scripts/slice_precheck.py</code>, wrapping whichever slicer CLI is installed.</li>
+<li><code>SKILL.md</code> §"Validation gates" — add as an optional final step, clearly marked as requiring a locally installed slicer.</li>
+</ul>
+</body>
+</html>
