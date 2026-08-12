@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python3 *)",
+      "WebSearch",
+      "Bash(jj st *)",
+      "Bash(jj diff *)",
+      "Bash(jj commit *)",
+      "Bash(jj bookmark *)",
+      "Bash(jj git *)"
+    ]
+  }
+}

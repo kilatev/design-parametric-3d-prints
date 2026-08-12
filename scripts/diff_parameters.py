@@ -11,16 +11,9 @@ SECTIONS = ("nominal", "clearances", "derived")
 
 
 def flatten(doc: dict) -> dict:
-    flat = {}
-    for key in ("revision", "units"):
-        if key in doc:
-            flat[key] = doc[key]
-    for section in SECTIONS:
-        for key, value in doc.get(section, {}).items():
-            flat[f"{section}.{key}"] = value
-    for instance in doc.get("instances", []):
-        name = instance.get("name", "?")
-        flat[f"instances.{name}"] = instance
+    flat = {k: doc[k] for k in ("revision", "units") if k in doc}
+    flat |= {f"{s}.{k}": v for s in SECTIONS for k, v in doc.get(s, {}).items()}
+    flat |= {f"instances.{i.get('name', '?')}": i for i in doc.get("instances", [])}
     return flat
 
 
