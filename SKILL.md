@@ -52,7 +52,7 @@ Create fabrication-ready parametric CAD, not merely a plausible render. Freeze t
 - Put all editable values in one `parameters.json` (see [assets/parameters.example.json](assets/parameters.example.json) for the schema: `revision`, `units`, `nominal`, `clearances`, `derived`). Generate SVG, DXF, the FreeCAD/STEP model, and STL from that same file — never scatter unexplained literals through geometry code or retype values per deliverable.
 - Express derived values as formulas when possible. Examples include rotated Z placement, wedge drop, clear slot size, and tool-pocket diameter.
 - Separate nominal size from clearance. A 20 mm object and a 21 mm slot must remain two explainable parameters, not one magic number.
-- Round user-facing edges deliberately. Parameterize plan radius, profile radius, and edge fillet separately because they solve different problems.
+- Round user-facing edges deliberately. Identify candidate edges using the propose/skip criteria in [references/engineering-checklist.md](references/engineering-checklist.md) §1, propose chamfer or fillet with the tradeoff only for those, and silently skip the rest — summarize skipped categories in one line rather than enumerating every skipped edge. Parameterize plan radius, profile radius, and the chosen edge chamfer/fillet separately because they solve different problems.
 - Apply cuts for pockets, drainage, and cables after the relevant solids are united. A channel that only cuts the visible plate but not its shelf or support is incomplete.
 - Preserve open access when requested. Removing side cheeks means deleting their solids, not merely hiding them in a drawing.
 - Do not fuse logical assembly components in the editable STEP or FreeCAD model unless the user asks for one body. A print-ready STL may contain overlapping shells that the slicer unions.
@@ -91,6 +91,8 @@ Run [scripts/validate_projections.py](scripts/validate_projections.py) to compar
 
 Run [scripts/validate_manifest.py](scripts/validate_manifest.py) on the delivery `manifest.json`. Require every listed file to exist and its revision to match the approved drawing's revision.
 
+Run [scripts/estimate_material.py](scripts/estimate_material.py) on each print-ready STL to report solid-model weight and filament length alongside the deliverables. This is a solid-volume estimate, not a slicer-accurate quote — say so when reporting it.
+
 Also verify task-specific invariants numerically. Typical checks:
 
 - preliminary front, top, and side envelopes agree on every shared axis;
@@ -111,7 +113,7 @@ If a check fails, revise the geometry and regenerate every dependent deliverable
 
 - Assign a new revision when geometry changes materially. Bump `revision` in `parameters.json` and keep every deliverable stamped with it.
 - Carry unchanged parameters forward explicitly.
-- Describe what changed and which former revision should not be printed.
+- Describe what changed and which former revision should not be printed. Run [scripts/diff_parameters.py](scripts/diff_parameters.py) against the previous revision's `parameters.json` and base the description on its output rather than recalling changes from memory.
 - Re-export and revalidate STEP, STL, source, and drawing together.
 - Generate a `manifest.json` (revision, units, approved drawing, and the source/STEP/STL filenames) alongside the deliverables so no file from a stale revision can be mistaken for current. Validate it with [scripts/validate_manifest.py](scripts/validate_manifest.py).
 - Lead the handoff with the verified outcome and direct file links.

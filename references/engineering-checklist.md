@@ -12,6 +12,27 @@ Record these before modelling:
 | Assembly | Which blocks must remain separately movable or replaceable? |
 | Access | From which sides must objects and cables enter or leave? |
 | Orientation | Which face sits on the bed, base, wall, or table? |
+| Edge treatment | Which edges qualify for a chamfer/fillet proposal (see criteria below), and which is the right kind for each? |
+| Symmetry | Is this part one of an inherently mirrored left/right (or front/back) pair? If yes, does the delivery need both mirrored copies, or is a single side intentional? |
+
+Not every edge is a candidate. Use this to decide where to propose a treatment and where to say nothing:
+
+Propose a treatment for:
+- grip/handling edges (touched or held) → fillet, for comfort, unless a support/overhang concern outweighs it;
+- insertion/lead-in edges (hole rims, slot mouths, connector openings) → chamfer, to guide the mating part in — fillets guide insertion less reliably;
+- exposed outer corners on handled or bumped parts → light chamfer or fillet for safety/durability;
+- load-bearing internal corners (rib-to-wall, wedge-to-base) → fillet, to reduce stress concentration and print-layer crack risk;
+- steep overhang-start edges meant to print support-free → chamfer at a print-friendly angle, not a fillet.
+
+Propose nothing (skip silently) for:
+- fully internal/hidden edges never seen or touched (interior mating faces, concealed interior walls);
+- edges carrying a validated critical-fit dimension, where any added radius/chamfer would change a clearance already fixed by this requirements contract, unless the treatment was already accounted for in that clearance;
+- the bed-contact edge or a support-wedge contact edge, where a treatment would break flat bed contact or interrupt support continuity;
+- edges below the printer's practical minimum feature size, where any proposed radius/chamfer would be unprintable.
+
+For each edge where a treatment is proposed: a chamfer prints faster and rarely needs support, but feels sharper to the touch; a fillet is more comfortable and spreads stress better, but is sensitive to the printer's minimum feature radius and can need support on steep edges. Record the chosen kind and size as a named parameter per edge group (e.g. `edge_chamfer` or `edge_fillet_r`), the same way plan and profile radii are named.
+
+When a part is an inherently mirrored pair and only one side was modelled, mirror it via a `Placement`/`Mirror` transform rather than hand-remodelling the other side, and deliver both as separate named STEP/STL components — consistent with not fusing logical assembly components into one anonymous body.
 
 Use measured hardware dimensions when available. Keep nominal dimensions and allowance separate. Treat generic FDM clearance numbers only as starting points; test-fit coupons are mandatory for expensive or long prints.
 
