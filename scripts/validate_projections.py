@@ -15,17 +15,9 @@ import json
 import math
 from pathlib import Path
 
+from dxf_common import parse_pairs
+
 COORD_CODES = {10, 11, 12, 13, 20, 21, 22, 23, 30, 31, 32, 33}
-
-
-def parse_pairs(path: Path) -> list[tuple[int, str]]:
-    raw = path.read_bytes()
-    if raw.startswith(b"AutoCAD Binary DXF"):
-        raise ValueError(f"{path}: binary DXF is not supported by this validator")
-    lines = raw.decode("utf-8-sig").splitlines()
-    if len(lines) % 2:
-        raise ValueError(f"{path}: DXF has an odd number of group-code lines")
-    return [(int(lines[i].strip()), lines[i + 1].strip()) for i in range(0, len(lines), 2)]
 
 
 def bounds(pairs: list[tuple[int, str]]) -> dict[str, tuple[float, float]]:

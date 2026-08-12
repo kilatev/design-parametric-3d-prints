@@ -69,15 +69,19 @@ def parse_region(value: str):
     return parts
 
 
-def triangle_area(tri):
+def edge_cross(tri):
     a, b, c = tri
     u = [b[i] - a[i] for i in range(3)]
     v = [c[i] - a[i] for i in range(3)]
-    cross = (
+    return (
         u[1] * v[2] - u[2] * v[1],
         u[2] * v[0] - u[0] * v[2],
         u[0] * v[1] - u[1] * v[0],
     )
+
+
+def triangle_area(tri):
+    cross = edge_cross(tri)
     return 0.5 * math.sqrt(sum(x * x for x in cross))
 
 
@@ -138,14 +142,7 @@ def overhang_angle_deg(tri):
     Convention: only downward-facing normals (nz < 0) are overhangs at all;
     a vertical wall is never flagged regardless of the chosen threshold.
     """
-    a, b, c = tri
-    u = [b[i] - a[i] for i in range(3)]
-    v = [c[i] - a[i] for i in range(3)]
-    cross = (
-        u[1] * v[2] - u[2] * v[1],
-        u[2] * v[0] - u[0] * v[2],
-        u[0] * v[1] - u[1] * v[0],
-    )
+    cross = edge_cross(tri)
     length = math.sqrt(sum(x * x for x in cross))
     if length <= 0:
         return None

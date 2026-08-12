@@ -9,23 +9,7 @@ import math
 from collections import Counter
 from pathlib import Path
 
-
-def parse_pairs(path: Path) -> list[tuple[int, str]]:
-    raw = path.read_bytes()
-    if raw.startswith(b"AutoCAD Binary DXF"):
-        raise ValueError("binary DXF is not supported by this validator")
-    text = raw.decode("utf-8-sig")
-    lines = text.splitlines()
-    if len(lines) % 2:
-        raise ValueError("DXF has an odd number of group-code lines")
-    pairs = []
-    for index in range(0, len(lines), 2):
-        try:
-            code = int(lines[index].strip())
-        except ValueError as exc:
-            raise ValueError(f"invalid group code at line {index + 1}") from exc
-        pairs.append((code, lines[index + 1].strip()))
-    return pairs
+from dxf_common import parse_pairs
 
 
 def value_after(pairs: list[tuple[int, str]], marker: str, code: int) -> str | None:
