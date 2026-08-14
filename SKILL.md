@@ -20,7 +20,7 @@ Create fabrication-ready parametric CAD, not merely a plausible render. Freeze t
    - SVG for immediate visual review;
    - DXF in millimetres and model space 1:1 for editable CAD geometry.
    Keep their front, top, and right-side projections identical. Show the overall envelope, block boundaries, openings, object clearances, angles, radii, cable routes, and print-bed plane.
-6. Validate both files, then present the SVG for user approval and provide the DXF as the engineering source. Pause before 3D modelling unless the user explicitly requested an uninterrupted run without intermediate confirmation. Never proceed while a material contradiction or unresolved dimension remains.
+6. Validate both files, then present the SVG for user approval and provide the DXF as the engineering source. Pause before 3D modelling unless the user explicitly requested an uninterrupted run without intermediate confirmation. Never proceed while a material contradiction or unresolved dimension remains. If the part has a fit-critical clearance (a sliding fit, snap-fit, or press-fit), ask the user whether to generate and print a small test-coupon plate (`test_coupons` in `parameters.json`, built by `build_coupon_plate` in [assets/freecad-parametric-template.FCMacro](assets/freecad-parametric-template.FCMacro)) before committing to the full print. Do not decide this yourself — let the user weigh print cost/time against fit risk.
 7. Build each functional block in its own local coordinate system from the approved drawing. Keep base, holders, stands, cups, covers, and inserts separate when the user may move or replace them.
 8. Assemble only through explicit Placement/Move transforms. Calculate rotated extents before accepting spacing or bed contact.
 9. Make the intended print orientation support-aware:
@@ -50,6 +50,7 @@ Create fabrication-ready parametric CAD, not merely a plausible render. Freeze t
 ## CAD construction rules
 
 - Put all editable values in one `parameters.json` (see [assets/parameters.example.json](assets/parameters.example.json) for the schema: `revision`, `units`, `nominal`, `clearances`, `derived`). Generate SVG, DXF, the FreeCAD/STEP model, and STL from that same file — never scatter unexplained literals through geometry code or retype values per deliverable.
+- For a fit-critical clearance the user wants to test before the full print, add an optional `test_coupons` section: `{"feature": "hole"|"slot", "nominal": <mm>, "trial_values": [<clearance mm>, ...], "spacing": <mm>, "margin": <mm>}`. Print the resulting coupon plate, measure, then fix the chosen value in `clearances` before rebuilding the full model.
 - Express derived values as formulas when possible. Examples include rotated Z placement, wedge drop, clear slot size, and tool-pocket diameter.
 - Separate nominal size from clearance. A 20 mm object and a 21 mm slot must remain two explainable parameters, not one magic number.
 - Round user-facing edges deliberately. Identify candidate edges using the propose/skip criteria in [references/engineering-checklist.md](references/engineering-checklist.md) §1, propose chamfer or fillet with the tradeoff only for those, and silently skip the rest — summarize skipped categories in one line rather than enumerating every skipped edge. Parameterize plan radius, profile radius, and the chosen edge chamfer/fillet separately because they solve different problems.
@@ -62,7 +63,7 @@ Create fabrication-ready parametric CAD, not merely a plausible render. Freeze t
 ## Tool and format selection
 
 - Prefer native FreeCAD generation when `FreeCADCmd` or FreeCAD Python is available.
-- When FreeCAD is unavailable, generate BREP/STEP with an OpenCascade-compatible kernel and provide a FreeCAD macro that rebuilds the same named blocks.
+- When FreeCAD is unavailable, generate BREP/STEP with an OpenCascade-compatible kernel and provide a FreeCAD macro that rebuilds the same named blocks. If neither `FreeCADCmd` nor a kernel is importable yet, tell the user which is missing and ask them to install one before modelling — FreeCAD itself, or `pip install build123d` (pulls in the `OCP` OpenCascade binding) — rather than installing it yourself.
 - Use `PartDesign::Feature` or equivalent named objects for blocks and `Placement` for final Move/Rotate assembly.
 - Use SVG as the primary review drawing and render it for visual inspection before modelling.
 - Use DXF as the mandatory editable engineering drawing. Preserve millimetres, 1:1 model-space geometry, named layers, line types, and editable text or dimensions where the selected DXF version permits them.

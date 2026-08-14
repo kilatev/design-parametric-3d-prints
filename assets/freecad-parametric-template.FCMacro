@@ -1,11 +1,15 @@
 # Generic FreeCAD parametric block template. Units: mm.
 import json
 import os
+import sys
 from pathlib import Path
 
 import FreeCAD as App
 import FreeCADGui as Gui
 import Part
+
+sys.path.insert(0, str(Path(__file__).with_name("..").joinpath("scripts").resolve()))
+from coupon_plate import feature_positions, plate_dims
 
 # Single source of truth for every dimension. Override the path with the
 # PARAMETERS_JSON environment variable to point at a task-specific file;
@@ -62,6 +66,39 @@ def add_instances(doc, assembly, base_shape, instances):
     ]
 
 
+def build_coupon_plate(doc, assembly, params_doc, thickness=4.0):
+    """Build a small fit-test plate from parameters.json's "test_coupons":
+    {"feature": "hole"|"slot", "nominal", "trial_values": [...], "depth"
+    (default = plate thickness), "spacing", "margin"}. Print this alone first
+    to measure and pick a clearance before committing the full model.
+    """
+    cfg = params_doc["test_coupons"]
+    nominal = cfg["nominal"]
+    trial_values = cfg["trial_values"]
+    spacing = cfg.get("spacing", 15.0)
+    margin = cfg.get("margin", 8.0)
+    depth = cfg.get("depth", thickness)
+
+    width, depth_extent = plate_dims(nominal, trial_values, spacing, margin)
+    plate = Part.makeBox(width, depth_extent, thickness)
+
+    for x_center, size in feature_positions(nominal, trial_values, spacing, margin):
+        y_center = depth_extent / 2
+        if cfg["feature"] == "hole":
+            cutter = Part.makeCylinder(size / 2, depth, App.Vector(x_center, y_center, 0))
+        elif cfg["feature"] == "slot":
+            cutter = Part.makeBox(size, nominal * 2, depth, App.Vector(x_center - size / 2, margin, 0))
+        else:
+            raise ValueError(f"unsupported test_coupons feature {cfg['feature']!r}")
+        plate = plate.cut(cutter)
+
+    coupon = doc.addObject("Part::Feature", "CouponPlate")
+    coupon.Label = f"Test coupon R{params_doc.get('revision', '')}"
+    coupon.Shape = plate
+    assembly.addObject(coupon)
+    return coupon
+
+
 doc = App.newDocument("ParametricPrintablePart")
 assembly = doc.addObject("App::Part", "Assembly")
 assembly.Label = "Movable parametric blocks"
@@ -102,6 +139,11 @@ block = add_block(
 if "instances" in PARAMETER_DOC:
     wheel_shape = Part.makeCylinder(p.get("wheel_r", 20.0), p.get("wheel_w", 10.0))
     wheels = add_instances(doc, assembly, wheel_shape, PARAMETER_DOC["instances"])
+
+# Fit-test plate (see build_coupon_plate docstring). Present only when the
+# user asked for a coupon before committing the full print.
+if "test_coupons" in PARAMETER_DOC:
+    coupon = build_coupon_plate(doc, assembly, PARAMETER_DOC)
 
 doc.recompute()
 Gui.activeDocument().activeView().viewAxonometric()
