@@ -16,7 +16,7 @@ Record these before modelling:
 | Repetition | Does one shape appear more than once (a mirrored pair, or N placed copies like rover wheels, table legs, screw bosses)? If yes, how many, and at what position/rotation/mirror does each copy sit? |
 | Standard component | Does the part mount, hold, sit in, or organize around a recognizable off-the-shelf standard (bearing series, modular organizer system, extrusion profile, connector footprint, fastener standard)? If yes, propose adopting that standard's published dimensions instead of asking the user to specify them from scratch — name the specific standard. |
 
-Recognize the standard from context — the object being fitted, a reference image, or a word like "Gridfinity"/"bearing"/"extrusion" in the request — and propose it before modelling, rather than treating the dimension as bespoke. Confirm the specific size/variant with the user when more than one exists (e.g. which bearing series, which extrusion width). Examples: a rotating shaft or wheel axle → propose a standard bearing (e.g. 608, ISO 15:2017) instead of an invented bore; a modular storage/organizer request → propose Gridfinity's 42 mm base module; a part mounting to T-slot rail → use the rail's published slot width and bolt spacing; a machine screw → see the fastener-standard note below. This list is illustrative, not exhaustive — apply the same reasoning to any other recognizable standard.
+When this applies, consult [references/standards-catalog.md](standards-catalog.md) for known standards, examples, and lookup guidance — no need to read it otherwise.
 
 Not every edge is a candidate. Use this to decide where to propose a treatment and where to say nothing:
 
@@ -38,23 +38,6 @@ For each edge where a treatment is proposed: a chamfer prints faster and rarely 
 When one shape is placed more than once — a mirrored pair, or an N-way pattern like 4 rover wheels — model it once and generate every copy from an `instances` list in `parameters.json` (name, position, rotation axis/angle, optional mirror normal), applied through the `add_instances` helper in [assets/freecad-parametric-template.FCMacro](../assets/freecad-parametric-template.FCMacro). Never hand-duplicate or hand-rotate geometry per copy — a wrong rotation typed twice is a common source of the "correct angle, wrong sign" trap. Deliver every instance as its own separate named STEP/STL component, consistent with not fusing logical assembly components into one anonymous body.
 
 Use measured hardware dimensions when available. Keep nominal dimensions and allowance separate. Treat generic FDM clearance numbers only as starting points; test-fit coupons are mandatory for expensive or long prints.
-
-### Heat-set insert hole sizing (starting point, not a fixed spec)
-
-When a part takes a machine screw via a heat-set insert, size the pilot hole and boss from these typical ranges, then verify against the specific insert's datasheet — inserts of the same thread size vary in outer diameter and knurl geometry across brands:
-
-| Thread | Typical pilot hole | Typical insert OD |
-| --- | --- | --- |
-| M2 | 3.0–3.2 mm | 3.2–3.5 mm |
-| M3 | 4.0 mm | 4.0–4.6 mm |
-| M4 | 5.6 mm | 5.6–6.3 mm |
-| M5 | 6.4 mm | 6.4–7.1 mm |
-
-Boss outer diameter: pilot hole + 2× minimum wall thickness (1.2–1.6 mm is a common starting wall for the boss, same `min_wall` parameter used elsewhere). FDM holes commonly print slightly undersized (nozzle over-extrudes on tight curves); a test-fit coupon is the reliable way to confirm the pilot hole before committing to the full print, consistent with the test-coupon rule above.
-
-### Machine screw clearance holes and heads (reference the standard, don't retable it)
-
-Plain machine screw geometry (clearance hole diameter, head diameter, counterbore/countersink depth) is tightly standardized — ISO 4762 (socket-head cap screws), ISO 7380 (button-head), and ISO 273 (clearance holes) — and varies far less across manufacturers than heat-set inserts do. Look these up from the relevant standard or the specific screw's datasheet at build time rather than keeping a second copy here that will drift out of date. If a supplied reference image shows the screw (SKILL.md's reference-image inspection step), read the head shape from it — hex socket, button, or flat/countersunk — and pick the matching standard instead of asking the user to name it; still confirm thread size and length, which usually aren't readable from a photo. Record whichever numbers were actually used as named parameters in `parameters.json` (e.g. `screw_clearance_d`, `screw_head_d`, `counterbore_depth`), same as every other dimension in this checklist.
 
 ## 2. Preliminary three-view drawing
 

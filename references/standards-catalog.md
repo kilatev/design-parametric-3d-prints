@@ -1,0 +1,22 @@
+# Standards catalog
+
+Read this only when [engineering-checklist.md](engineering-checklist.md) §1's "Standard component" row applies to the current task — not on every task.
+
+Recognize the standard from context — the object being fitted, a reference image, or a word like "Gridfinity"/"bearing"/"extrusion" in the request — and propose it before modelling, rather than treating the dimension as bespoke. Confirm the specific size/variant with the user when more than one exists (e.g. which bearing series, which extrusion width). Examples: a rotating shaft or wheel axle → propose a standard bearing (e.g. 608, ISO 15:2017) instead of an invented bore; a modular storage/organizer request → propose Gridfinity's 42 mm base module; a part mounting to T-slot rail → use the rail's published slot width and bolt spacing; a machine screw → see the fastener-standard note below. Further examples: a long tie between blocks → threaded rod (DIN 976, M3–M8) instead of a printed screw; no heat-set inserts on hand → a hex-nut trap pocket (DIN 934 / ISO 4032) as the fallback; a panel cutout for a connector (USB-C, USB-A, DC jack, bar-mount jacks) → the component's own datasheet footprint, same pattern as the screw-standard note; a part mounting into an electrical enclosure → 35 mm DIN rail (EN 50022); a bracket for a single-board computer → that board's published mounting-hole spacing (e.g. Raspberry Pi, Arduino Uno), not a measured guess; a slot for a cable tie → its standard width (2.5/3.6/4.8/7.6 mm); a slot sized to a card or coin → ISO/IEC 7810 ID-1 (85.6×54 mm) for a standard card; a lid or enclosure that must seal → an O-ring groove sized from AS568/ISO 3601 for the chosen cord diameter, not an invented channel; a captured compression spring → the spring's own catalog wire/coil diameter, sized to fit rather than designed from scratch; a pin header footprint → 2.54 mm Dupont/JST pitch; a stick-on foot or suction cup pocket → the foot's standard diameter (e.g. 20/25/30 mm); a part combined with a sheet material → standard plywood/acrylic thickness (3/5/6/9/12 mm) for the slot; a belt-driven carriage → GT2 belt pitch (2 mm) and standard 6/9 mm widths; a plumbing or pneumatic thread → NPT/BSP/G, not metric machine thread; a battery pocket → the cell's standard envelope (18650, AA/AAA, CR2032) with its published tolerance. This list is illustrative, not exhaustive — apply the same reasoning to any other recognizable standard.
+
+## Heat-set insert hole sizing (starting point, not a fixed spec)
+
+When a part takes a machine screw via a heat-set insert, size the pilot hole and boss from these typical ranges, then verify against the specific insert's datasheet — inserts of the same thread size vary in outer diameter and knurl geometry across brands:
+
+| Thread | Typical pilot hole | Typical insert OD |
+| --- | --- | --- |
+| M2 | 3.0–3.2 mm | 3.2–3.5 mm |
+| M3 | 4.0 mm | 4.0–4.6 mm |
+| M4 | 5.6 mm | 5.6–6.3 mm |
+| M5 | 6.4 mm | 6.4–7.1 mm |
+
+Boss outer diameter: pilot hole + 2× minimum wall thickness (1.2–1.6 mm is a common starting wall for the boss, same `min_wall` parameter used elsewhere). FDM holes commonly print slightly undersized (nozzle over-extrudes on tight curves); a test-fit coupon is the reliable way to confirm the pilot hole before committing to the full print, consistent with the test-coupon rule in engineering-checklist.md §1.
+
+## Machine screw clearance holes and heads (reference the standard, don't retable it)
+
+Plain machine screw geometry (clearance hole diameter, head diameter, counterbore/countersink depth) is tightly standardized — ISO 4762 (socket-head cap screws), ISO 7380 (button-head), and ISO 273 (clearance holes) — and varies far less across manufacturers than heat-set inserts do. Look these up from the relevant standard or the specific screw's datasheet at build time rather than keeping a second copy here that will drift out of date. If a supplied reference image shows the screw (SKILL.md's reference-image inspection step), read the head shape from it — hex socket, button, or flat/countersunk — and pick the matching standard instead of asking the user to name it; still confirm thread size and length, which usually aren't readable from a photo. Record whichever numbers were actually used as named parameters in `parameters.json` (e.g. `screw_clearance_d`, `screw_head_d`, `counterbore_depth`), same as every other dimension in engineering-checklist.md.
