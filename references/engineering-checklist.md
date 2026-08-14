@@ -15,8 +15,11 @@ Record these before modelling:
 | Edge treatment | Which edges qualify for a chamfer/fillet proposal (see criteria below), and which is the right kind for each? |
 | Repetition | Does one shape appear more than once (a mirrored pair, or N placed copies like rover wheels, table legs, screw bosses)? If yes, how many, and at what position/rotation/mirror does each copy sit? |
 | Standard component | Does the part mount, hold, sit in, or organize around a recognizable off-the-shelf standard (bearing series, modular organizer system, extrusion profile, connector footprint, fastener standard)? If yes, propose adopting that standard's published dimensions instead of asking the user to specify them from scratch — name the specific standard. |
+| Print-in-place mechanism | Should this part print already assembled — a hinge, swivel, or similar joint printed with a functional gap rather than fastened together afterwards? |
 
-When this applies, consult [references/standards-catalog.md](standards-catalog.md) for known standards, examples, and lookup guidance — no need to read it otherwise.
+When "Standard component" applies, consult [references/standards-catalog.md](standards-catalog.md) for known standards, examples, and lookup guidance — no need to read it otherwise.
+
+When "Print-in-place mechanism" applies, consult [references/print-in-place.md](print-in-place.md) before modelling — it covers joint-axis/bed-orientation interaction, why radial and axial gaps must stay separate, and the coupon-test caveats specific to this technique.
 
 Not every edge is a candidate. Use this to decide where to propose a treatment and where to say nothing:
 

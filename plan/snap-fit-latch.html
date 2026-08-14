@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deferred: Snap-fit latch</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1a1a1a;background:#fff}
+h1{font-size:1.4rem}
+code{background:#f2f2f2;padding:.15rem .35rem;border-radius:4px;font-size:.9em}
+.why{border-left:3px solid #999;padding-left:.75rem;color:#444}
+</style>
+</head>
+<body>
+<h1>Deferred: Snap-fit latch</h1>
+
+<h2>Idea</h2>
+<p>A cantilever snap-fit feature (flexible arm with a retention lip/bump) as a reusable parametric helper — for lids, covers, or panels that clip together after printing instead of being screwed. Unlike a print-in-place joint (see <code>references/print-in-place.md</code>), this is a post-print assembly aid: the two halves are separate prints that click together, not one part with a built-in moving gap.</p>
+
+<h2 class="why">Why deferred</h2>
+<p>It's the same family of problem as the print-in-place cantilever spring already noted in <code>references/print-in-place.md</code> (a flexing beam whose deflection/retention force can only be roughly estimated from beam theory, not guaranteed generically), plus it needs its own geometry conventions (lip angle, undercut depth, insertion vs. retention force asymmetry) that haven't been needed by an actual task yet. Building a generic snap-fit generator before a real lid/cover request would be speculative.</p>
+
+<h2>When to build it</h2>
+<p>Next time a task actually needs two halves to clip together without screws or heat-set inserts — build the specific latch then, and only promote it to a reusable helper if the pattern repeats.</p>
+
+<h2>What it would touch</h2>
+<ul>
+<li>A new <code>build_snap_fit_latch</code>-style function in the task's FCMacro, following the same "separate solids, named parameters, coupon before full print" conventions as <code>build_print_in_place_joint</code>.</li>
+<li><code>references/engineering-checklist.md</code> §1 — a new intake row analogous to "Print-in-place mechanism", once the pattern is proven.</li>
+</ul>
+</body>
+</html>
