@@ -2,7 +2,7 @@
 
 Design and revise functional, parameterized parts for FDM 3D printing, including organizers, holders, mounts, adapters, spacers, enclosures, cable routes, and multi-block assemblies. Use when the agent must first turn dimensional requirements or reference images into an approved three-view SVG plus an editable 1:1 DXF, then create editable FreeCAD-compatible geometry, named STEP components, print-ready STL, and final model-derived drawings; especially when fit clearances, Placement/Move assembly, support-free printing, overhang removal, bed contact, or iterative CAD revision must be verified.
 
-See [SKILL.md](SKILL.md) for the full workflow, or [docs/overview/overview.en.html](docs/overview/overview.en.html) for a plain-language overview aimed at someone deciding whether to use this skill (also available in Russian, Latvian, German, and French via the language links on that page).
+See [SKILL.md](SKILL.md) for the full workflow, or the rendered [plain-language overview](https://kilatev.github.io/design-parametric-3d-prints/overview/overview.en.html) aimed at someone deciding whether to use this skill (also available in Russian, Latvian, German, and French via the language links on that page).
 
 ## Quick-start: prompt instead of skill (recommended)
 
