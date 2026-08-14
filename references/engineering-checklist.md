@@ -14,6 +14,9 @@ Record these before modelling:
 | Orientation | Which face sits on the bed, base, wall, or table? |
 | Edge treatment | Which edges qualify for a chamfer/fillet proposal (see criteria below), and which is the right kind for each? |
 | Repetition | Does one shape appear more than once (a mirrored pair, or N placed copies like rover wheels, table legs, screw bosses)? If yes, how many, and at what position/rotation/mirror does each copy sit? |
+| Standard component | Does the part mount, hold, sit in, or organize around a recognizable off-the-shelf standard (bearing series, modular organizer system, extrusion profile, connector footprint, fastener standard)? If yes, propose adopting that standard's published dimensions instead of asking the user to specify them from scratch — name the specific standard. |
+
+Recognize the standard from context — the object being fitted, a reference image, or a word like "Gridfinity"/"bearing"/"extrusion" in the request — and propose it before modelling, rather than treating the dimension as bespoke. Confirm the specific size/variant with the user when more than one exists (e.g. which bearing series, which extrusion width). Examples: a rotating shaft or wheel axle → propose a standard bearing (e.g. 608, ISO 15:2017) instead of an invented bore; a modular storage/organizer request → propose Gridfinity's 42 mm base module; a part mounting to T-slot rail → use the rail's published slot width and bolt spacing; a machine screw → see the fastener-standard note below. This list is illustrative, not exhaustive — apply the same reasoning to any other recognizable standard.
 
 Not every edge is a candidate. Use this to decide where to propose a treatment and where to say nothing:
 
