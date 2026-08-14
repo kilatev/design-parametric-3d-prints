@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<title>design-parametric-3d-prints — pārskats</title>
+<style>
+  body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; font-family: sans-serif; line-height: 1.5; color: #111; }
+  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0 1.25rem; font-size: 0.95rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; }
+  code, pre { font-family: monospace; }
+  pre { background: #f7f7f7; border: 1px solid #ddd; padding: 0.6rem 0.8rem; overflow-x: auto; white-space: pre-wrap; }
+  .lang-switch { font-size: 0.9rem; color: #555; }
+  .lang-switch a { margin: 0 0.3rem; }
+  dt { font-weight: bold; margin-top: 0.5rem; }
+  dd { margin: 0 0 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<p class="lang-switch">Also available in:
+<a href="overview.en.html">English</a> ·
+<a href="overview.ru.html">Русский</a> ·
+<a href="overview.de.html">Deutsch</a> ·
+<a href="overview.fr.html">Français</a>
+</p>
+
+<h1>design-parametric-3d-prints — pārskats</h1>
+
+<p>Šis dokuments aprakstīta prasme <code>design-parametric-3d-prints</code> tam, kurš izlemj, vai to izmantot. Tas neaptver ieviešanas detaļas (skriptus, funkcijas, failu formātus); tām skatīt <code>SKILL.md</code> un <code>references/</code>.</p>
+
+<h2>1. Darbības apjoms</h2>
+<p>Prasme rada parametrisku CAD modeli funkcionālai detaļai, kas paredzēta FDM 3D drukāšanai, ne tikai ticami izskatošos attēlu. Pirms jebkādas 3D geometrijas veidošanas tā rada izmērotu rasējumu. Katrs izmērs ir nosaukts, izsekojams parametrs, ne skaitlis, kas vienreiz ierakstīts attēlā. Piesēde, pieskare ar drukas platformu un drukājamība tiek pārbaudīta pēc eksportētās geometrijas, nevis pieņemta pēc izskata.</p>
+
+<h2>2. Kad to izmantot</h2>
+<table>
+<tr><th>Izmantot</th><th>Izlaist</th></tr>
+<tr>
+<td>Funkcionālas detaļas: statīvi, organizatori, stiprinājumi, adapteri, korpusi, daudzdaļīgi salikumi — viss, kam ir piesēde, spraugs vai daļas, kurām jāpārvietojas vai jāatdalās.</td>
+<td>Vienreizējas dekoratīvas formas bez kritiskiem izmēriem un bez salikuma. Rasējuma/validācijas process tur nesniedz vērtību.</td>
+</tr>
+</table>
+
+<h2>3. Ievaddati</h2>
+<ul>
+<li><strong>Teksta aprakstu</strong> — izmēri un prasības vārdos.</li>
+<li><strong>Atsauces fotoattēlu vai ekrānuzņēmumu</strong>, tai skaitā slāņotāja ekrānuzņēmumu, kas rāda drukas kļūmi — prasme no tā nolasa geometrijas liecības: sadursmes starp daļām, pārkares, spraugas, pat skrūves galvas formu.</li>
+<li><strong>Esošu CAD modeli vai rasējumu</strong> pārstrādei.</li>
+</ul>
+
+<h2>4. Prasības, ko prasme noskaidro</h2>
+<p>Pirms modelēšanas prasme fiksē atbildes uz šiem jautājumiem (vaicājot lietotājam, kur atbilde nav dota):</p>
+<table>
+<tr><th>Kategorija</th><th>Jautājums</th></tr>
+<tr><td>Objekta piesēde</td><td>Kāds nominālais izmērs un ievietošanas virziens ir jānodrošina?</td></tr>
+<tr><td>Sprauga</td><td>Bīdāma, vaļīga, fiksēta, magnētiska vai spiedē iemontējama?</td></tr>
+<tr><td>Ražošana</td><td>Printera darba tilpums, materiāls, minimālais sienas biezums?</td></tr>
+<tr><td>Salikums</td><td>Kuriem blokiem jāpaliek atsevišķi pārvietojamiem vai nomaināmiem?</td></tr>
+<tr><td>Piekļuve</td><td>No kuras puses ieiet vai iziet kabeļi vai priekšmeti?</td></tr>
+<tr><td>Orientācija</td><td>Kura virsma atbalstās uz drukas platformas?</td></tr>
+<tr><td>Malu apstrāde</td><td>Kurām malām veidot nošķeltu vai noapaļotu malu — skatīt §5.</td></tr>
+<tr><td>Atkārtošanās</td><td>Vai forma atkārtojas (spoguļots pāris, riteņi, kājas, skrūvju izciļņi) — skatīt §6.</td></tr>
+<tr><td>Standarta komponenti</td><td>Vai detaļa izmanto atpazīstamu, gatavu standartu — skatīt §7.</td></tr>
+<tr><td>Uz vietas drukāts mehānisms</td><td>Vai detaļai jātiek izdrukātai jau saliktai un kustīgai — skatīt §8.</td></tr>
+</table>
+
+<h2>5. Malu apstrādes noteikums</h2>
+<p>Ne katra mala tiek apstrādāta. Prasme piedāvā nošķeltu vai noapaļotu malu tikai tur, kur tas ietekmē komfortu, salikumu vai izturību, un citur klusē.</p>
+<table>
+<tr><th>Piedāvā apstrādi</th><th>Atstāj neapstrādātu</th></tr>
+<tr><td>Malas, kas tiek satvertas vai aiztiktas (noapaļojums, komforta labad)</td><td>Pilnībā iekšējas/nosegtas virsmas, ko nekad neredz un nepieskaras</td></tr>
+<tr><td>Cauruma vai spraugas ieejas malas (nošķelums, lai vadītu ievietošanu)</td><td>Malas, kurām jau noteikts kritisks spraugas izmērs</td></tr>
+<tr><td>Atklāti ārējie stūri, kas var tikt uzsisti</td><td>Mala, kas pieskaras platformai, vai atbalsta ķīļa pieskares mala</td></tr>
+<tr><td>Slodzi nesoši iekšējie stūri (noapaļojums, lai mazinātu plaisāšanas risku)</td><td>Elementi, mazāki par printera minimālo elementa izmēru</td></tr>
+<tr><td>Krasas pārkares sākuma malas (nošķelums, lai drukātu bez balstiem)</td><td></td></tr>
+</table>
+
+<h2>6. Atkārtoti elementi</h2>
+<p>Kad viena forma parādās vairāk nekā vienreiz — spoguļots pāris, četri riteņi, galda kājas, skrūvju izciļņi — tā tiek modelēta vienreiz, un katra kopija tiek novietota pēc pozīcijas, pagrieziena vai spoguļošanas. Kopijas nekad netiek dublētas vai pagrieztas ar roku, kas novērš tipisko "leņķis pareizs, zīme nepareiza" kļūdu, kas rodas manuālās kopēšanas gaitā.</p>
+
+<h2>7. Standarta komponenti</h2>
+<p>Kad detaļa tiek stiprināta pie, tur vai apliek atpazīstamu, gatavu standartu, prasme piedāvā šī standarta publicētos izmērus, nevis izdomā skaitļus. Standarta nosaukšana ir pietiekama, lai iegūtu tā izmērus.</p>
+<table>
+<tr><th>Pasaki</th><th>Iegūsti</th></tr>
+<tr><td>"608 gultnis"</td><td>Gultņa sēde pēc ISO 15 — vārpstai, ritenim vai asij</td></tr>
+<tr><td>"Gridfinity"</td><td>42&nbsp;mm modulārs pamats — saderīgs organizators</td></tr>
+<tr><td>"T-veida gropes profils"</td><td>Gropes platums un skrūvju izvietojums no profila publicētajiem izmēriem</td></tr>
+<tr><td>"M3 skrūve" / skrūves galvas fotoattēls</td><td>Sprauga un galvas geometrija pēc ISO 4762 / ISO 7380 / ISO 273 — galvas formu var nolasīt no fotoattēla</td></tr>
+<tr><td>"vītņstienis"</td><td>Savilcējstienis starp blokiem pēc DIN 976 (M3–M8)</td></tr>
+<tr><td>"uzgriežņa kabata"</td><td>Iedobe fiksētam uzgrieznim pēc DIN 934 / ISO 4032, kad karsēti ieliktņi nav pieejami</td></tr>
+<tr><td>"USB-C izgriezums" / DC kontakts / audio kontakts</td><td>Paneļa izgriezums pēc savienotāja datu lapā norādītā nospieduma</td></tr>
+<tr><td>"DIN sliede"</td><td>35&nbsp;mm montāžas sliede pēc EN 50022, elektroiekārtu korpusam</td></tr>
+<tr><td>"Raspberry Pi stiprinājums"</td><td>Montāžas caurumi pēc plates publicētā izvietojuma, nevis mērot ar aci</td></tr>
+<tr><td>"kabeļa savilcēja sprauga"</td><td>Standarta platums: 2.5 / 3.6 / 4.8 / 7.6&nbsp;mm</td></tr>
+<tr><td>"kartes slots"</td><td>ISO/IEC 7810 ID-1: 85.6 × 54&nbsp;mm</td></tr>
+<tr><td>"O-veida gredzena grope"</td><td>Grope pēc AS568 / ISO 3601, pielāgota izvēlētā auklas diametram</td></tr>
+<tr><td>"spiedes atsperes kabata"</td><td>Izmērota pēc atsperes pašas kataloga izmēriem, ne veidota no jauna</td></tr>
+<tr><td>"kontaktu rinda"</td><td>2.54&nbsp;mm solis</td></tr>
+<tr><td>"piesūkšanās kausiņš" / gumijas kājiņa</td><td>Standarta diametrs: 20 / 25 / 30&nbsp;mm</td></tr>
+<tr><td>"saplākšņa/akrila sprauga"</td><td>Standarta lapas biezums: 3 / 5 / 6 / 9 / 12&nbsp;mm</td></tr>
+<tr><td>"GT2 siksna"</td><td>2&nbsp;mm solis, standarta 6 vai 9&nbsp;mm platumi</td></tr>
+<tr><td>"pneimatikas/santehnikas vītne"</td><td>NPT / BSP / G, ne metriskā mehānikas vītne</td></tr>
+<tr><td>"18650 kabata" / AA / CR2032</td><td>Elementa standarta apjoms ar tā publicēto tolerance</td></tr>
+<tr><td>"M3 karsētais ieliktnis"</td><td>Tipiski pilota cauruma un izciļņa diametri, apstiprināti pēc konkrētā ieliktņa datu lapas</td></tr>
+</table>
+
+<h2>8. Uz vietas drukāti savienojumi</h2>
+<p>Uz vietas drukāts savienojums tiek izdrukāts jau saliktā veidā: divas daļas ar funkcionālu spraugu starp tām, bez montāžas soļa pēc drukas.</p>
+<dl>
+<dt>Ieviests: tapa-uzmavā</dt>
+<dd>Tapa, kas rotē uzmavas iekšpusē — šarnīrs, grozāms vai rotējošs savienojums. Testa pāru režģi ar dažādām spraugām var izdrukāt pirms galīgā savienojuma apstiprināšanas (skatīt §9).</dd>
+<dt>Pieejams pēc pieprasījuma (veidots individuāli, nevis kā gatavs risinājums)</dt>
+<dd>
+Bumbveida (lodveida) savienojums (daudzasu) &middot;
+dzīvais šarnīrs (plāna lokana membrāna spraugas vietā) &middot;
+daudzposmu ķēde vai čūskveida roka (atkārtoti tapa-uzmavā vai bumbveida elementi) &middot;
+sevi fiksējoša tapa ar pretēji vērstām spirālveida rievām (novērš aksiālu izslīdēšanu bez precīzi noregulētas spraugas) &middot;
+drukāta konsoles atspere (fiksatoram vai skavai) &middot;
+sperklis un aizturis &middot;
+zobrats ar vītņotu (elkoņa) zobojumu (savietoti zobi, ne fiksēta bumba — labāk panes FDM slāņu izšķirtspēju; drukāts bumbu/rullīšu gultnis kopumā nav ieteicams, izdevīgāk izmantot lētu pirktu gultni).
+</dd>
+</dl>
+<p>Prasme šos nosacījumus piemēro pati un atzīmē, kur tas attiecas: savienojuma rotācijas asij drukas laikā jābūt vertikālai; lipīgiem materiāliem, piemēram, PETG, nepieciešamas lielākas spraugas nekā PLA; plastmasas-pret-plastmasas savienojums nodilst ātrāk nekā metāla, kas ir svarīgi mehānismiem ar augstu darbības ciklu.</p>
+
+<h2>9. Testa kuponi</h2>
+<p>Piesēdei kritiskai spraugai var izdrukāt nelielu plāksni ar vairākām izmēģinājuma spraugas vērtībām (vai nelielu tapu/uzmavu pāru režģi uz vietas drukātam savienojumam) pirms pilnas detaļas drukāšanas. Nomēri rezultātu, fiksē izvēlēto spraugu, tad drukā pilnu detaļu.</p>
+
+<h2>10. Darba process</h2>
+<ol>
+<li>Aprakstu vai fotoattēlu pārvērš nosaukto izmēru tabulā.</li>
+<li>Priekšlikuma rasējums (skats no priekšas, no augšas, no labās puses) tiek sagatavots apstiprināšanai. Darbs šeit apstājas, izņemot gadījumus, kad pieprasīta nepārtraukta izpilde.</li>
+<li>Pēc apstiprināšanas tiek veidots 3D modelis — katra funkcionālā daļa kā atsevišķs, pārvietojams bloks.</li>
+<li>Eksportētā geometrija tiek pārbaudīta drukājamībai: nav peldošu bloku, korekta pieskare platformai, iederas deklarētajā darba tilpumā.</li>
+<li>Tiek nodoti galīgie faili (skatīt §11).</li>
+</ol>
+
+<h2>11. Nododamie materiāli</h2>
+<table>
+<tr><th>Fails</th><th>Nolūks</th></tr>
+<tr><td>Drukai gatavs modelis</td><td>Gatavs slāņošanai un drukāšanai</td></tr>
+<tr><td>Redigējams CAD modelis</td><td>FreeCAD/STEP avots, turpmākai pārstrādei</td></tr>
+<tr><td>Rasējumi</td><td>Priekšlikuma (apstiprināšanai) un galīgie (no pabeigtā modeļa)</td></tr>
+<tr><td>PDF lapa</td><td>Pēc pieprasījuma, arhīva vai darbnīcas lietošanai</td></tr>
+<tr><td>Masas/pavediena aplēse</td><td>Cieta tilpuma aplēse, ne slāņotāja precīzs piedāvājums</td></tr>
+</table>
+
+<h2>12. Revīzijas</h2>
+<p>Būtiska geometrijas izmaiņa saņem jaunu, skaidri apzīmētu revīziju. Katrs nododamais materiāls tiek marķēts ar savu revīziju, un manifests uzrāda, kuri faili pieder kurai revīzijai — vecos un jaunos nododamos materiālus nevar sajaukt.</p>
+
+<h2>13. Piemēru uzdevumu formulējumi</h2>
+
+<pre>Scenārijs: vienkārša izmērota detaļa
+"Man vajag telefona statīvu 60° leņķī, 80 mm platu spraugu,
+10 mm spraugas dziļumu, stabilu pamatni. Materiāls: PLA."</pre>
+
+<pre>Scenārijs: no atsauces fotoattēla
+"Šeit ir fotoattēls korpusam, kurā šim barošanas blokam
+jāiederas. Man vajag vāku ar kabeļa izgriezumu un fiksatoru,
+lai tas neizkristu."</pre>
+
+<pre>Scenārijs: ar standarta komponentu
+"Man vajag pavediena rullīša statīvu ar 608 gultni iekšpusē,
+lai rullītis brīvi rotētu."
+
+"Man vajag mazu detaļu organizatoru Gridfinity sistēmā,
+standarta 42 mm pamats."</pre>
+
+<pre>Scenārijs: ar uz vietas drukātu savienojumu
+"Man vajag vāku uz šarnīra, kas tiek izdrukāts jau kustīgs,
+bez montāžas pēc drukas — atveras līdz 90°, materiāls PLA."</pre>
+
+<pre>Scenārijs: ar piesēdes testu pirms pilnas drukas
+"Pirms visa korpusa drukāšanas izdrukā mazu testa plāksni
+ar vairākām fiksatora spraugas vērtībām, lai varētu vispirms
+izvēlēties pareizo."</pre>
+
+<h2>14. Ātrais režīms</h2>
+<p>Nekas no iepriekšminētā neprasa vispirms formāli instalēt prasmi. Nelielam vai atkārtotam uzdevumam pieprasījuma aprakstīšana §13 stilā sniedz to pašu darba procesu bez jebkādas iestatīšanas soļa.</p>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>design-parametric-3d-prints — présentation</title>
+<style>
+  body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; font-family: sans-serif; line-height: 1.5; color: #111; }
+  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0 1.25rem; font-size: 0.95rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; }
+  code, pre { font-family: monospace; }
+  pre { background: #f7f7f7; border: 1px solid #ddd; padding: 0.6rem 0.8rem; overflow-x: auto; white-space: pre-wrap; }
+  .lang-switch { font-size: 0.9rem; color: #555; }
+  .lang-switch a { margin: 0 0.3rem; }
+  dt { font-weight: bold; margin-top: 0.5rem; }
+  dd { margin: 0 0 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<p class="lang-switch">Also available in:
+<a href="overview.en.html">English</a> ·
+<a href="overview.ru.html">Русский</a> ·
+<a href="overview.lv.html">Latviešu</a> ·
+<a href="overview.de.html">Deutsch</a>
+</p>
+
+<h1>design-parametric-3d-prints — présentation</h1>
+
+<p>Ce document décrit la compétence <code>design-parametric-3d-prints</code> pour quelqu'un qui envisage de l'utiliser. Il ne couvre pas les détails d'implémentation (scripts, fonctions, formats de fichiers) ; voir <code>SKILL.md</code> et <code>references/</code> pour cela.</p>
+
+<h2>1. Portée</h2>
+<p>La compétence produit un modèle CAO paramétrique pour une pièce fonctionnelle destinée à l'impression 3D FDM, et non une image d'aspect plausible. Avant toute construction de géométrie 3D, elle produit un plan coté. Chaque cote est un paramètre nommé et traçable, plutôt qu'un chiffre saisi une seule fois dans une image. L'ajustement, le contact avec le plateau et l'imprimabilité sont vérifiés sur la géométrie exportée, et non supposés à partir de l'apparence.</p>
+
+<h2>2. Quand l'utiliser</h2>
+<table>
+<tr><th>À utiliser</th><th>À éviter</th></tr>
+<tr>
+<td>Pièces fonctionnelles : supports, organiseurs, fixations, adaptateurs, boîtiers, assemblages multi-pièces — tout ce qui comporte un ajustement, un jeu, ou des pièces qui doivent bouger ou se séparer.</td>
+<td>Formes décoratives ponctuelles sans cote critique et sans assemblage. Le processus de plan/validation n'y apporte rien.</td>
+</tr>
+</table>
+
+<h2>3. Entrées</h2>
+<ul>
+<li><strong>Description textuelle</strong> — dimensions et exigences en mots.</li>
+<li><strong>Photo ou capture d'écran de référence</strong>, y compris une capture de logiciel de tranchage (slicer) montrant un échec d'impression — la compétence en extrait des indices géométriques : pièces en collision, surplombs, jeux, voire la forme de la tête d'une vis.</li>
+<li><strong>CAO ou plan existant</strong> à réviser.</li>
+</ul>
+
+<h2>4. Exigences que la compétence détermine</h2>
+<p>Avant la modélisation, la compétence consigne les réponses aux questions suivantes (en les demandant à l'utilisateur lorsque la réponse n'est pas fournie) :</p>
+<table>
+<tr><th>Catégorie</th><th>Question</th></tr>
+<tr><td>Ajustement de l'objet</td><td>Quelle taille nominale et quelle direction d'insertion doivent être respectées ?</td></tr>
+<tr><td>Jeu</td><td>Glissant, libre, captif, magnétique, ou serré (press-fit) ?</td></tr>
+<tr><td>Fabrication</td><td>Volume d'impression de l'imprimante, matériau, épaisseur de paroi minimale ?</td></tr>
+<tr><td>Assemblage</td><td>Quels blocs doivent rester mobiles ou remplaçables indépendamment ?</td></tr>
+<tr><td>Accès</td><td>De quel côté les câbles ou objets entrent-ils ou sortent-ils ?</td></tr>
+<tr><td>Orientation</td><td>Quelle face repose sur le plateau d'impression ?</td></tr>
+<tr><td>Traitement des arêtes</td><td>Quelles arêtes reçoivent un chanfrein ou un congé — voir §5.</td></tr>
+<tr><td>Répétition</td><td>Une forme se répète-t-elle (paire en miroir, roues, pieds, bossages de vis) — voir §6.</td></tr>
+<tr><td>Composants standard</td><td>La pièce utilise-t-elle un standard commercial reconnaissable — voir §7.</td></tr>
+<tr><td>Mécanisme imprimé en place</td><td>La pièce doit-elle sortir déjà assemblée et mobile — voir §8.</td></tr>
+</table>
+
+<h2>5. Règle de traitement des arêtes</h2>
+<p>Toutes les arêtes ne sont pas traitées. La compétence propose un chanfrein ou un congé uniquement là où cela améliore le confort, l'assemblage ou la résistance, et reste silencieuse ailleurs.</p>
+<table>
+<tr><th>Traitement proposé</th><th>Laissé brut</th></tr>
+<tr><td>Arêtes saisies ou manipulées (congé, pour le confort)</td><td>Faces totalement internes/cachées, jamais vues ni touchées</td></tr>
+<tr><td>Arêtes d'entrée de trou ou de fente (chanfrein, pour guider l'insertion)</td><td>Arêtes porteuses d'une cote de jeu critique déjà figée</td></tr>
+<tr><td>Coins extérieurs exposés susceptibles d'être heurtés</td><td>L'arête de contact avec le plateau ou une arête de contact avec un support en coin</td></tr>
+<tr><td>Coins internes porteurs de charge (congé, pour réduire le risque de fissure)</td><td>Éléments plus petits que la taille minimale des détails de l'imprimante</td></tr>
+<tr><td>Arêtes de départ de surplomb raide (chanfrein, pour imprimer sans support)</td><td></td></tr>
+</table>
+
+<h2>6. Éléments répétés</h2>
+<p>Lorsqu'une même forme apparaît plusieurs fois — une paire en miroir, quatre roues, des pieds de table, des bossages de vis — elle est modélisée une seule fois, et chaque copie est placée par position, rotation ou symétrie. Les copies ne sont jamais dupliquées ou tournées à la main, ce qui élimine l'erreur classique du « bon angle, mauvais signe » propre aux copies manuelles.</p>
+
+<h2>7. Composants standard</h2>
+<p>Lorsqu'une pièce se monte sur, maintient, ou entoure un standard commercial reconnaissable, la compétence propose les dimensions publiées de ce standard plutôt que d'inventer des chiffres. Nommer le standard suffit à en obtenir les dimensions.</p>
+<table>
+<tr><th>Vous dites</th><th>Vous obtenez</th></tr>
+<tr><td>« roulement 608 »</td><td>Logement de roulement selon ISO 15 — alésage d'arbre, de roue ou d'axe</td></tr>
+<tr><td>« Gridfinity »</td><td>Base modulaire de 42&nbsp;mm — organiseur compatible</td></tr>
+<tr><td>« profilé à rainure en T »</td><td>Largeur de rainure et espacement des boulons tirés des dimensions publiées du profilé</td></tr>
+<tr><td>« vis M3 » / une photo de la tête de vis</td><td>Jeu et géométrie de tête selon ISO 4762 / ISO 7380 / ISO 273 — la forme de la tête peut être lue sur une photo</td></tr>
+<tr><td>« tige filetée »</td><td>Tirant entre blocs selon DIN 976 (M3–M8)</td></tr>
+<tr><td>« logement d'écrou »</td><td>Poche pour écrou captif selon DIN 934 / ISO 4032, lorsque les inserts thermofusibles ne sont pas disponibles</td></tr>
+<tr><td>« découpe USB-C » / jack CC / jack audio</td><td>Découpe de panneau selon l'empreinte de la fiche technique du connecteur</td></tr>
+<tr><td>« rail DIN »</td><td>Rail de montage de 35&nbsp;mm selon EN 50022, pour un boîtier électrique</td></tr>
+<tr><td>« support Raspberry Pi »</td><td>Trous de fixation à l'espacement publié de la carte, sans mesure approximative</td></tr>
+<tr><td>« fente de collier de serrage »</td><td>Largeur standard : 2,5 / 3,6 / 4,8 / 7,6&nbsp;mm</td></tr>
+<tr><td>« fente pour carte »</td><td>ISO/IEC 7810 ID-1 : 85,6 × 54&nbsp;mm</td></tr>
+<tr><td>« gorge de joint torique »</td><td>Gorge selon AS568 / ISO 3601, dimensionnée selon le diamètre de cordon choisi</td></tr>
+<tr><td>« logement pour ressort de compression »</td><td>Dimensionné à partir des cotes catalogue du ressort, sans conception de zéro</td></tr>
+<tr><td>« connecteur à broches »</td><td>Pas de 2,54&nbsp;mm</td></tr>
+<tr><td>« ventouse » / patin en caoutchouc</td><td>Diamètre standard : 20 / 25 / 30&nbsp;mm</td></tr>
+<tr><td>« fente pour contreplaqué/acrylique »</td><td>Épaisseur de panneau standard : 3 / 5 / 6 / 9 / 12&nbsp;mm</td></tr>
+<tr><td>« courroie GT2 »</td><td>Pas de 2&nbsp;mm, largeurs standard de 6 ou 9&nbsp;mm</td></tr>
+<tr><td>« filetage pneumatique/plomberie »</td><td>NPT / BSP / G plutôt qu'un filetage métrique mécanique</td></tr>
+<tr><td>« logement pour pile 18650 » / AA / CR2032</td><td>Le gabarit standard de l'élément, avec sa tolérance publiée</td></tr>
+<tr><td>« insert thermofusible M3 »</td><td>Diamètres typiques de trou pilote et de bossage, confirmés avec la fiche technique de l'insert spécifique</td></tr>
+</table>
+
+<h2>8. Articulations imprimées en place</h2>
+<p>Une articulation imprimée en place sort déjà assemblée : deux pièces séparées par un jeu fonctionnel, sans étape d'assemblage ultérieure.</p>
+<dl>
+<dt>Implémentée : axe dans un manchon</dt>
+<dd>Un axe tournant dans un manchon — une charnière, un pivot ou une articulation rotative. Une grille de paires d'essai à différents jeux peut être imprimée avant de figer l'articulation finale (voir §9).</dd>
+<dt>Disponible sur demande (conçue au cas par cas, pas un préréglage prêt à l'emploi)</dt>
+<dd>
+Rotule (articulation multi-axes) &middot;
+charnière vivante (une fine membrane flexible au lieu d'un jeu) &middot;
+chaîne multi-maillons ou bras de type serpent (unités répétées d'axe/manchon ou de rotule) &middot;
+axe autoretenu à gorges hélicoïdales opposées (résiste à la dérive axiale sans jeu finement ajusté) &middot;
+ressort à lame imprimé (pour un loquet ou un clip) &middot;
+cliquet et rochet &middot;
+roulement à denture en chevron (dents engrenées au lieu d'une bille captive — plus tolérant à la résolution des couches en FDM ; un roulement à bille/rouleau imprimé est généralement déconseillé au profit d'un roulement acheté à bas coût).
+</dd>
+</dl>
+<p>La compétence applique ces contraintes d'elle-même et les signale lorsqu'elles s'appliquent : l'axe de rotation de l'articulation doit être vertical pendant l'impression ; les matériaux collants comme le PETG demandent des jeux plus larges que le PLA ; une articulation plastique sur plastique s'use plus vite qu'une articulation métallique, ce qui compte pour les mécanismes à fort cycle d'utilisation.</p>
+
+<h2>9. Éprouvettes de test</h2>
+<p>Pour un jeu critique pour l'ajustement, une petite plaque comportant plusieurs valeurs de jeu d'essai (ou une petite grille de paires axe/manchon pour une articulation imprimée en place) peut être imprimée avant la pièce complète. Mesurer le résultat, fixer le jeu retenu, puis imprimer la pièce complète.</p>
+
+<h2>10. Déroulement</h2>
+<ol>
+<li>La description ou la photo est convertie en un tableau de dimensions nommées.</li>
+<li>Un plan préliminaire (vues de face, de dessus, de côté droit) est produit pour validation. Le travail s'arrête ici, sauf si une exécution sans interruption a été demandée.</li>
+<li>Une fois validé, le modèle 3D est construit — chaque pièce fonctionnelle formant un bloc distinct et mobile.</li>
+<li>La géométrie exportée est vérifiée en termes d'imprimabilité : aucun bloc flottant, contact correct avec le plateau, compatibilité avec le volume d'impression déclaré.</li>
+<li>Les fichiers finaux sont livrés (voir §11).</li>
+</ol>
+
+<h2>11. Livrables</h2>
+<table>
+<tr><th>Fichier</th><th>Objet</th></tr>
+<tr><td>Modèle prêt à imprimer</td><td>Prêt pour le tranchage et l'impression</td></tr>
+<tr><td>Modèle CAO éditable</td><td>Source FreeCAD/STEP, pour révision ultérieure</td></tr>
+<tr><td>Plans</td><td>Préliminaire (pour validation) et final (issu du modèle achevé)</td></tr>
+<tr><td>Feuille PDF</td><td>Sur demande, pour archivage ou usage atelier</td></tr>
+<tr><td>Estimation masse/filament</td><td>Une estimation basée sur le volume solide, pas un chiffrage aussi précis que celui d'un logiciel de tranchage</td></tr>
+</table>
+
+<h2>12. Révisions</h2>
+<p>Un changement matériel de la géométrie donne lieu à une nouvelle révision, explicitement étiquetée. Chaque livrable porte le tampon de sa révision, et un manifeste indique quels fichiers appartiennent à quelle révision — les anciens et nouveaux livrables ne peuvent pas être confondus.</p>
+
+<h2>13. Exemples de requêtes</h2>
+
+<pre>Scénario : une pièce simplement cotée
+« J'ai besoin d'un support de téléphone incliné à 60°,
+fente de 80 mm de large, 10 mm de profondeur de fente,
+base stable. Matériau : PLA. »</pre>
+
+<pre>Scénario : à partir d'une photo de référence
+« Voici une photo du boîtier dans lequel cette
+alimentation doit s'insérer. J'ai besoin d'un couvercle
+avec une découpe pour câble et un loquet pour qu'il ne
+tombe pas. »</pre>
+
+<pre>Scénario : avec un composant standard
+« J'ai besoin d'un support de bobine de filament avec un
+roulement 608 à l'intérieur pour que la bobine tourne
+librement. »
+
+« J'ai besoin d'un organiseur de petites pièces au format
+Gridfinity, base standard de 42 mm. »</pre>
+
+<pre>Scénario : avec une articulation imprimée en place
+« J'ai besoin d'un couvercle sur charnière qui sort déjà
+mobile de l'impression, sans assemblage après impression —
+s'ouvre à 90°, matériau PLA. »</pre>
+
+<pre>Scénario : avec un test d'ajustement avant l'impression complète
+« Avant d'imprimer tout le boîtier, imprime une petite
+plaque de test avec plusieurs valeurs de jeu pour le
+loquet, pour que je puisse choisir la bonne en premier. »</pre>
+
+<h2>14. Mode rapide</h2>
+<p>Rien de ce qui précède ne requiert d'installer formellement la compétence au préalable. Pour une tâche petite ou récurrente, décrire la demande dans le style du §13 permet d'obtenir le même déroulement sans aucune étape de configuration.</p>
+
+</body>
+</html>

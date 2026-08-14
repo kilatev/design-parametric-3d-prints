@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>design-parametric-3d-prints — overview</title>
+<style>
+  body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; font-family: sans-serif; line-height: 1.5; color: #111; }
+  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0 1.25rem; font-size: 0.95rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; }
+  code, pre { font-family: monospace; }
+  pre { background: #f7f7f7; border: 1px solid #ddd; padding: 0.6rem 0.8rem; overflow-x: auto; white-space: pre-wrap; }
+  .lang-switch { font-size: 0.9rem; color: #555; }
+  .lang-switch a { margin: 0 0.3rem; }
+  dt { font-weight: bold; margin-top: 0.5rem; }
+  dd { margin: 0 0 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<p class="lang-switch">Also available in:
+<a href="overview.ru.html">Русский</a> ·
+<a href="overview.lv.html">Latviešu</a> ·
+<a href="overview.de.html">Deutsch</a> ·
+<a href="overview.fr.html">Français</a>
+</p>
+
+<h1>design-parametric-3d-prints — overview</h1>
+
+<p>This document describes the <code>design-parametric-3d-prints</code> skill for someone deciding whether to use it. It does not cover implementation details (scripts, functions, file formats); see <code>SKILL.md</code> and <code>references/</code> for that.</p>
+
+<h2>1. Scope</h2>
+<p>The skill produces a parametric CAD model for a functional part intended for FDM 3D printing, not a plausible-looking image. Before any 3D geometry is built, it produces a dimensioned drawing. Every dimension is a named, traceable parameter rather than a number typed once into a picture. Fit, bed contact, and printability are checked against the exported geometry, not assumed from appearance.</p>
+
+<h2>2. When to use it</h2>
+<table>
+<tr><th>Use it</th><th>Skip it</th></tr>
+<tr>
+<td>Functional parts: holders, organizers, mounts, adapters, enclosures, multi-part assemblies — anything with a fit, a clearance, or parts that must move or separate.</td>
+<td>One-off decorative shapes with no critical dimensions and no assembly. The drawing/validation process adds no value there.</td>
+</tr>
+</table>
+
+<h2>3. Inputs</h2>
+<ul>
+<li><strong>Text description</strong> — dimensions and requirements in words.</li>
+<li><strong>Reference photo or screenshot</strong>, including a slicer screenshot showing a print failure — the skill reads geometry evidence from it: colliding parts, overhangs, clearances, even screw head shape.</li>
+<li><strong>Existing CAD or drawing</strong> to revise.</li>
+</ul>
+
+<h2>4. Requirements the skill works out</h2>
+<p>Before modelling, the skill records answers to these questions (asking the user where the answer isn't given):</p>
+<table>
+<tr><th>Category</th><th>Question</th></tr>
+<tr><td>Object fit</td><td>What nominal size and insertion direction must fit?</td></tr>
+<tr><td>Clearance</td><td>Sliding, loose, captured, magnetic, or press-fit?</td></tr>
+<tr><td>Manufacturing</td><td>Printer build volume, material, minimum wall thickness?</td></tr>
+<tr><td>Assembly</td><td>Which blocks must stay separately movable or replaceable?</td></tr>
+<tr><td>Access</td><td>Which side do cables or objects enter or exit from?</td></tr>
+<tr><td>Orientation</td><td>Which face sits on the print bed?</td></tr>
+<tr><td>Edge treatment</td><td>Which edges get a chamfer or fillet — see §5.</td></tr>
+<tr><td>Repetition</td><td>Does one shape repeat (a mirrored pair, wheels, feet, screw bosses) — see §6.</td></tr>
+<tr><td>Standard components</td><td>Does the part use a recognizable off-the-shelf standard — see §7.</td></tr>
+<tr><td>Print-in-place mechanism</td><td>Should the part print already assembled and moving — see §8.</td></tr>
+</table>
+
+<h2>5. Edge treatment rule</h2>
+<p>Not every edge is treated. The skill proposes a chamfer or fillet only where it changes comfort, assembly, or strength, and stays silent otherwise.</p>
+<table>
+<tr><th>Proposes a treatment</th><th>Leaves untreated</th></tr>
+<tr><td>Edges that are gripped or handled (fillet, for comfort)</td><td>Fully internal/hidden faces never seen or touched</td></tr>
+<tr><td>Hole or slot entry edges (chamfer, to guide insertion)</td><td>Edges carrying an already-fixed critical clearance dimension</td></tr>
+<tr><td>Exposed outer corners that could be bumped</td><td>The bed-contact edge or a support-wedge contact edge</td></tr>
+<tr><td>Load-bearing internal corners (fillet, to reduce crack risk)</td><td>Features smaller than the printer's minimum feature size</td></tr>
+<tr><td>Steep overhang-start edges (chamfer, to print support-free)</td><td></td></tr>
+</table>
+
+<h2>6. Repeated features</h2>
+<p>When one shape appears more than once — a mirrored pair, four wheels, table legs, screw bosses — it is modelled once and every copy is placed by position, rotation, or mirror. Copies are never hand-duplicated or hand-rotated, which removes the common "correct angle, wrong sign" error from manual copies.</p>
+
+<h2>7. Standard components</h2>
+<p>When a part mounts, holds, or sits around a recognizable off-the-shelf standard, the skill proposes that standard's published dimensions instead of inventing numbers. Naming the standard is enough to get its dimensions.</p>
+<table>
+<tr><th>Say</th><th>Get</th></tr>
+<tr><td>"608 bearing"</td><td>Bearing seat per ISO 15 — shaft, wheel, or axle bore</td></tr>
+<tr><td>"Gridfinity"</td><td>42&nbsp;mm modular base — compatible organizer</td></tr>
+<tr><td>"T-slot extrusion"</td><td>Slot width and bolt spacing from the profile's published dimensions</td></tr>
+<tr><td>"M3 screw" / a photo of the screw head</td><td>Clearance and head geometry per ISO 4762 / ISO 7380 / ISO 273 — head shape can be read from a photo</td></tr>
+<tr><td>"threaded rod"</td><td>Tie rod between blocks per DIN 976 (M3–M8)</td></tr>
+<tr><td>"nut trap"</td><td>Pocket for a captured nut per DIN 934 / ISO 4032, when heat-set inserts aren't available</td></tr>
+<tr><td>"USB-C cutout" / DC jack / audio jack</td><td>Panel cutout per the connector's datasheet footprint</td></tr>
+<tr><td>"DIN rail"</td><td>35&nbsp;mm mounting rail per EN 50022, for an electrical enclosure</td></tr>
+<tr><td>"Raspberry Pi mount"</td><td>Mounting holes at the board's published spacing, not a measured guess</td></tr>
+<tr><td>"cable tie slot"</td><td>Standard width: 2.5 / 3.6 / 4.8 / 7.6&nbsp;mm</td></tr>
+<tr><td>"card slot"</td><td>ISO/IEC 7810 ID-1: 85.6 × 54&nbsp;mm</td></tr>
+<tr><td>"O-ring groove"</td><td>Groove per AS568 / ISO 3601, sized to the chosen cord diameter</td></tr>
+<tr><td>"compression spring pocket"</td><td>Sized from the spring's own catalog dimensions, not designed from scratch</td></tr>
+<tr><td>"pin header"</td><td>2.54&nbsp;mm pitch</td></tr>
+<tr><td>"suction cup" / rubber foot</td><td>Standard diameter: 20 / 25 / 30&nbsp;mm</td></tr>
+<tr><td>"plywood/acrylic slot"</td><td>Standard sheet thickness: 3 / 5 / 6 / 9 / 12&nbsp;mm</td></tr>
+<tr><td>"GT2 belt"</td><td>2&nbsp;mm pitch, standard 6 or 9&nbsp;mm widths</td></tr>
+<tr><td>"pneumatic/plumbing thread"</td><td>NPT / BSP / G instead of metric machine thread</td></tr>
+<tr><td>"18650 pocket" / AA / CR2032</td><td>The cell's standard envelope, with its published tolerance</td></tr>
+<tr><td>"M3 heat-set insert"</td><td>Typical pilot-hole and boss diameters, confirmed against the specific insert's datasheet</td></tr>
+</table>
+
+<h2>8. Print-in-place joints</h2>
+<p>A print-in-place joint prints already assembled: two parts with a functional gap between them, with no assembly step afterward.</p>
+<dl>
+<dt>Implemented: pin-in-sleeve</dt>
+<dd>A pin rotating inside a sleeve — a hinge, swivel, or rotating joint. A grid of test pairs at different clearances can be printed before committing to the final joint (see §9).</dd>
+<dt>Available on request (designed case by case, not a ready preset)</dt>
+<dd>
+Ball-and-socket (multi-axis joint) &middot;
+living hinge (a thin flexing membrane instead of a gap) &middot;
+multi-link chain or snake-arm (repeated pin-in-sleeve or ball-socket units) &middot;
+self-retaining pin with opposed helical grooves (resists axial drift without a precisely tuned clearance) &middot;
+printed cantilever spring (for a latch or clip) &middot;
+ratchet and pawl &middot;
+herringbone gear bearing (meshing teeth instead of a captured ball — more tolerant of FDM's layer resolution; a printed ball/roller bearing is generally discouraged in favor of a cheap bought bearing).
+</dd>
+</dl>
+<p>The skill applies these constraints on its own and flags them where relevant: the joint's rotation axis must be vertical during printing; sticky materials such as PETG need looser clearances than PLA; a plastic-on-plastic joint wears faster than a metal one, which matters for high duty-cycle mechanisms.</p>
+
+<h2>9. Test coupons</h2>
+<p>For a fit-critical clearance, a small plate with several trial clearance values (or a small grid of pin/sleeve pairs for a print-in-place joint) can be printed before the full part. Measure the result, fix the chosen clearance, then print the full part.</p>
+
+<h2>10. Workflow</h2>
+<ol>
+<li>Description or photo is converted into a table of named dimensions.</li>
+<li>A preliminary drawing (front, top, right-side views) is produced for approval. Work pauses here unless an uninterrupted run was requested.</li>
+<li>Once approved, the 3D model is built — each functional part as a separate, movable block.</li>
+<li>The exported geometry is checked for printability: no floating blocks, correct bed contact, fits the declared build volume.</li>
+<li>Final files are delivered (see §11).</li>
+</ol>
+
+<h2>11. Deliverables</h2>
+<table>
+<tr><th>File</th><th>Purpose</th></tr>
+<tr><td>Print-ready model</td><td>Ready to slice and print</td></tr>
+<tr><td>Editable CAD model</td><td>FreeCAD/STEP source, for later revision</td></tr>
+<tr><td>Drawings</td><td>Preliminary (for approval) and final (from the completed model)</td></tr>
+<tr><td>PDF sheet</td><td>On request, for archival or shop use</td></tr>
+<tr><td>Mass/filament estimate</td><td>A solid-volume estimate, not a slicer-accurate quote</td></tr>
+</table>
+
+<h2>12. Revisions</h2>
+<p>A material geometry change gets a new, explicitly labelled revision. Every deliverable is stamped with its revision, and a manifest lists which files belong to which revision — old and new deliverables cannot be mixed up.</p>
+
+<h2>13. Example prompts</h2>
+
+<pre>Scenario: a plain dimensioned part
+"I need a phone stand at a 60° angle, 80 mm wide slot,
+10 mm slot depth, stable base. Material: PLA."</pre>
+
+<pre>Scenario: from a reference photo
+"Here's a photo of the enclosure this power supply has to
+fit into. I need a cover with a cable cutout and a latch
+so it doesn't fall out."</pre>
+
+<pre>Scenario: with a standard component
+"I need a filament spool holder with a 608 bearing inside
+so the spool spins freely."
+
+"I need a small-parts organizer in the Gridfinity system,
+standard 42 mm base."</pre>
+
+<pre>Scenario: with a print-in-place joint
+"I need a lid on a hinge that prints already movable, no
+assembly after printing — opens to 90°, material PLA."</pre>
+
+<pre>Scenario: with a fit test before the full print
+"Before printing the whole enclosure, print a small test
+plate with a few clearance values for the latch, so I can
+pick the right one first."</pre>
+
+<h2>14. Quick mode</h2>
+<p>None of the above requires formally installing the skill first. For a small or repeat job, describing the request in the style of §13 gets the same workflow without any setup step.</p>
+
+</body>
+</html>

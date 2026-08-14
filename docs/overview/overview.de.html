@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>design-parametric-3d-prints — Überblick</title>
+<style>
+  body { max-width: 760px; margin: 2rem auto; padding: 0 1rem; font-family: sans-serif; line-height: 1.5; color: #111; }
+  h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0 1.25rem; font-size: 0.95rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; }
+  code, pre { font-family: monospace; }
+  pre { background: #f7f7f7; border: 1px solid #ddd; padding: 0.6rem 0.8rem; overflow-x: auto; white-space: pre-wrap; }
+  .lang-switch { font-size: 0.9rem; color: #555; }
+  .lang-switch a { margin: 0 0.3rem; }
+  dt { font-weight: bold; margin-top: 0.5rem; }
+  dd { margin: 0 0 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<p class="lang-switch">Also available in:
+<a href="overview.en.html">English</a> ·
+<a href="overview.ru.html">Русский</a> ·
+<a href="overview.lv.html">Latviešu</a> ·
+<a href="overview.fr.html">Français</a>
+</p>
+
+<h1>design-parametric-3d-prints — Überblick</h1>
+
+<p>Dieses Dokument beschreibt die Skill <code>design-parametric-3d-prints</code> für jemanden, der entscheiden muss, ob er sie einsetzt. Es behandelt keine Implementierungsdetails (Skripte, Funktionen, Dateiformate); dafür siehe <code>SKILL.md</code> und <code>references/</code>.</p>
+
+<h2>1. Umfang</h2>
+<p>Die Skill erzeugt ein parametrisches CAD-Modell für ein funktionales Teil, das für den FDM-3D-Druck bestimmt ist, nicht ein plausibel aussehendes Bild. Bevor irgendeine 3D-Geometrie entsteht, wird eine bemaßte Zeichnung erstellt. Jede Bemaßung ist ein benannter, nachvollziehbarer Parameter und keine einmal in ein Bild eingetragene Zahl. Passung, Bettkontakt und Druckbarkeit werden anhand der exportierten Geometrie geprüft, nicht anhand des optischen Eindrucks angenommen.</p>
+
+<h2>2. Wann sie einsetzen</h2>
+<table>
+<tr><th>Einsetzen</th><th>Nicht einsetzen</th></tr>
+<tr>
+<td>Funktionale Teile: Halterungen, Organizer, Halterungen, Adapter, Gehäuse, mehrteilige Baugruppen — alles mit einer Passung, einem Spiel oder Teilen, die sich bewegen oder trennen lassen müssen.</td>
+<td>Einmalige dekorative Formen ohne kritische Maße und ohne Baugruppe. Der Zeichnungs- und Prüfprozess bringt dort keinen Mehrwert.</td>
+</tr>
+</table>
+
+<h2>3. Eingaben</h2>
+<ul>
+<li><strong>Textbeschreibung</strong> — Maße und Anforderungen in Worten.</li>
+<li><strong>Referenzfoto oder Screenshot</strong>, einschließlich eines Slicer-Screenshots, der einen Druckfehler zeigt — die Skill liest daraus Geometrie-Hinweise: kollidierende Teile, Überhänge, Spielräume, sogar die Form eines Schraubenkopfs.</li>
+<li><strong>Vorhandenes CAD-Modell oder Zeichnung</strong> zur Überarbeitung.</li>
+</ul>
+
+<h2>4. Anforderungen, die die Skill klärt</h2>
+<p>Vor der Modellierung hält die Skill Antworten auf diese Fragen fest (und fragt den Nutzer, wenn die Antwort nicht vorliegt):</p>
+<table>
+<tr><th>Kategorie</th><th>Frage</th></tr>
+<tr><td>Passung des Objekts</td><td>Welches Nennmaß und welche Einführrichtung müssen passen?</td></tr>
+<tr><td>Spiel</td><td>Gleitend, locker, gefangen, magnetisch oder Presssitz?</td></tr>
+<tr><td>Fertigung</td><td>Bauraum des Druckers, Material, minimale Wandstärke?</td></tr>
+<tr><td>Baugruppe</td><td>Welche Blöcke müssen separat beweglich oder austauschbar bleiben?</td></tr>
+<tr><td>Zugang</td><td>Von welcher Seite treten Kabel oder Objekte ein oder aus?</td></tr>
+<tr><td>Ausrichtung</td><td>Welche Fläche liegt auf dem Druckbett?</td></tr>
+<tr><td>Kantenbehandlung</td><td>Welche Kanten erhalten eine Fase oder Rundung — siehe §5.</td></tr>
+<tr><td>Wiederholung</td><td>Wiederholt sich eine Form (ein gespiegeltes Paar, Räder, Füße, Schraubdome) — siehe §6.</td></tr>
+<tr><td>Standardkomponenten</td><td>Nutzt das Teil einen erkennbaren handelsüblichen Standard — siehe §7.</td></tr>
+<tr><td>Print-in-Place-Mechanismus</td><td>Soll das Teil bereits zusammengebaut und beweglich gedruckt werden — siehe §8.</td></tr>
+</table>
+
+<h2>5. Regel zur Kantenbehandlung</h2>
+<p>Nicht jede Kante wird behandelt. Die Skill schlägt eine Fase oder Rundung nur dort vor, wo sie Komfort, Montage oder Festigkeit beeinflusst, und äußert sich sonst nicht.</p>
+<table>
+<tr><th>Schlägt eine Behandlung vor</th><th>Lässt unbehandelt</th></tr>
+<tr><td>Kanten, die gegriffen oder angefasst werden (Rundung, für Komfort)</td><td>Vollständig innenliegende/verborgene Flächen, die nie gesehen oder berührt werden</td></tr>
+<tr><td>Einführkanten von Bohrungen oder Schlitzen (Fase, zur Führung beim Einsetzen)</td><td>Kanten mit einem bereits festgelegten kritischen Spielmaß</td></tr>
+<tr><td>Freiliegende Außenkanten, die angestoßen werden könnten</td><td>Die Bettkontaktkante oder eine Kontaktkante zum Stützkeil</td></tr>
+<tr><td>Lasttragende Innenecken (Rundung, zur Reduzierung des Rissrisikos)</td><td>Merkmale kleiner als die minimale Feature-Größe des Druckers</td></tr>
+<tr><td>Kanten am Beginn eines steilen Überhangs (Fase, für stützfreien Druck)</td><td></td></tr>
+</table>
+
+<h2>6. Wiederholte Merkmale</h2>
+<p>Kommt eine Form mehrfach vor — ein gespiegeltes Paar, vier Räder, Tischbeine, Schraubdome — wird sie einmal modelliert, und jede Kopie wird über Position, Rotation oder Spiegelung platziert. Kopien werden nie manuell dupliziert oder von Hand gedreht, wodurch der typische Fehler „richtiger Winkel, falsches Vorzeichen" bei manuellen Kopien entfällt.</p>
+
+<h2>7. Standardkomponenten</h2>
+<p>Wenn ein Teil an einem erkennbaren handelsüblichen Standard montiert wird, ihn hält oder ihn umschließt, schlägt die Skill dessen veröffentlichte Maße vor, statt Zahlen zu erfinden. Die Nennung des Standards reicht aus, um dessen Maße zu erhalten.</p>
+<table>
+<tr><th>Sagen</th><th>Erhalten</th></tr>
+<tr><td>„608-Lager"</td><td>Lagersitz nach ISO 15 — Bohrung für Welle, Rad oder Achse</td></tr>
+<tr><td>„Gridfinity"</td><td>42&nbsp;mm modulare Basis — kompatibler Organizer</td></tr>
+<tr><td>„T-Nutenprofil"</td><td>Nutbreite und Schraubenabstand aus den veröffentlichten Profilmaßen</td></tr>
+<tr><td>„M3-Schraube" / ein Foto des Schraubenkopfs</td><td>Spiel und Kopfgeometrie nach ISO 4762 / ISO 7380 / ISO 273 — die Kopfform lässt sich aus einem Foto ablesen</td></tr>
+<tr><td>„Gewindestange"</td><td>Zuganker zwischen Blöcken nach DIN 976 (M3–M8)</td></tr>
+<tr><td>„Mutternfalle"</td><td>Tasche für eine gefangene Mutter nach DIN 934 / ISO 4032, wenn Gewindeeinsätze zum Einschmelzen nicht verfügbar sind</td></tr>
+<tr><td>„USB-C-Aussparung" / Hohlstecker / Klinkenbuchse</td><td>Blendenausschnitt nach dem im Datenblatt des Steckverbinders angegebenen Footprint</td></tr>
+<tr><td>„Hutschiene"</td><td>35&nbsp;mm-Montageschiene nach EN 50022, für ein Elektronikgehäuse</td></tr>
+<tr><td>„Raspberry-Pi-Halterung"</td><td>Montagebohrungen im veröffentlichten Rastermaß der Platine, nicht geschätzt</td></tr>
+<tr><td>„Kabelbinderschlitz"</td><td>Standardbreite: 2,5 / 3,6 / 4,8 / 7,6&nbsp;mm</td></tr>
+<tr><td>„Kartenschacht"</td><td>ISO/IEC 7810 ID-1: 85,6 × 54&nbsp;mm</td></tr>
+<tr><td>„O-Ring-Nut"</td><td>Nut nach AS568 / ISO 3601, dimensioniert nach dem gewählten Schnurdurchmesser</td></tr>
+<tr><td>„Aufnahme für Druckfeder"</td><td>Dimensioniert nach den Katalogmaßen der Feder, nicht von Grund auf entworfen</td></tr>
+<tr><td>„Stiftleiste"</td><td>2,54&nbsp;mm Rastermaß</td></tr>
+<tr><td>„Saugnapf" / Gummifuß</td><td>Standarddurchmesser: 20 / 25 / 30&nbsp;mm</td></tr>
+<tr><td>„Schlitz für Sperrholz/Acryl"</td><td>Standard-Plattendicke: 3 / 5 / 6 / 9 / 12&nbsp;mm</td></tr>
+<tr><td>„GT2-Riemen"</td><td>2&nbsp;mm Teilung, Standardbreiten 6 oder 9&nbsp;mm</td></tr>
+<tr><td>„Pneumatik-/Rohrgewinde"</td><td>NPT / BSP / G statt metrisches Feingewinde</td></tr>
+<tr><td>„18650-Fach" / AA / CR2032</td><td>Die Standardhülle der Zelle mit ihrer veröffentlichten Toleranz</td></tr>
+<tr><td>„M3-Gewindeeinsatz zum Einschmelzen"</td><td>Typische Kernloch- und Domdurchmesser, abgeglichen mit dem Datenblatt des jeweiligen Einsatzes</td></tr>
+</table>
+
+<h2>8. Print-in-Place-Gelenke</h2>
+<p>Ein Print-in-Place-Gelenk wird bereits zusammengebaut gedruckt: zwei Teile mit einem funktionalen Spalt dazwischen, ohne nachträglichen Montageschritt.</p>
+<dl>
+<dt>Implementiert: Stift-in-Hülse</dt>
+<dd>Ein Stift, der sich in einer Hülse dreht — ein Scharnier, Drehgelenk oder Rotationsgelenk. Vor der endgültigen Gelenkausführung kann ein Raster von Testpaaren mit unterschiedlichem Spiel gedruckt werden (siehe §9).</dd>
+<dt>Auf Anfrage verfügbar (fallweise entworfen, kein fertiges Preset)</dt>
+<dd>
+Kugelgelenk (mehrachsiges Gelenk) &middot;
+Filmscharnier (eine dünne biegsame Membran statt eines Spalts) &middot;
+mehrgliedrige Kette oder Schlangenarm (wiederholte Stift-in-Hülse- oder Kugelgelenkeinheiten) &middot;
+selbstsichernder Stift mit gegenläufigen Wendelnuten (widersteht axialem Verrutschen ohne präzise abgestimmtes Spiel) &middot;
+gedruckte Auslegerfeder (für eine Verriegelung oder einen Clip) &middot;
+Ratsche mit Sperrklinke &middot;
+Pfeilverzahnungslager (kämmende Zähne statt einer gefangenen Kugel — toleranter gegenüber der Schichtauflösung beim FDM-Druck; von einem gedruckten Kugel-/Rollenlager wird generell abgeraten, ein günstiges gekauftes Lager ist vorzuziehen).
+</dd>
+</dl>
+<p>Die Skill wendet diese Einschränkungen eigenständig an und weist bei Bedarf darauf hin: Die Rotationsachse des Gelenks muss beim Drucken vertikal stehen; klebrige Materialien wie PETG benötigen größeres Spiel als PLA; ein Kunststoff-auf-Kunststoff-Gelenk verschleißt schneller als eines aus Metall, was bei Mechanismen mit hoher Lastwechselzahl relevant ist.</p>
+
+<h2>9. Testcoupons</h2>
+<p>Für ein passungskritisches Spiel kann vor dem eigentlichen Teil eine kleine Platte mit mehreren Testspielwerten gedruckt werden (oder bei einem Print-in-Place-Gelenk ein kleines Raster von Stift-Hülse-Paaren). Ergebnis messen, das gewählte Spiel festlegen, dann das vollständige Teil drucken.</p>
+
+<h2>10. Arbeitsablauf</h2>
+<ol>
+<li>Beschreibung oder Foto wird in eine Tabelle benannter Maße überführt.</li>
+<li>Eine vorläufige Zeichnung (Vorder-, Drauf- und Seitenansicht) wird zur Freigabe erstellt. Die Arbeit pausiert hier, sofern kein ununterbrochener Durchlauf angefordert wurde.</li>
+<li>Nach der Freigabe wird das 3D-Modell erstellt — jedes funktionale Teil als eigener, beweglicher Block.</li>
+<li>Die exportierte Geometrie wird auf Druckbarkeit geprüft: keine freischwebenden Blöcke, korrekter Bettkontakt, passt in den angegebenen Bauraum.</li>
+<li>Die finalen Dateien werden geliefert (siehe §11).</li>
+</ol>
+
+<h2>11. Lieferumfang</h2>
+<table>
+<tr><th>Datei</th><th>Zweck</th></tr>
+<tr><td>Druckfertiges Modell</td><td>Bereit zum Slicen und Drucken</td></tr>
+<tr><td>Editierbares CAD-Modell</td><td>FreeCAD/STEP-Quelle, für spätere Überarbeitung</td></tr>
+<tr><td>Zeichnungen</td><td>Vorläufig (zur Freigabe) und final (aus dem fertigen Modell)</td></tr>
+<tr><td>PDF-Blatt</td><td>Auf Anfrage, für Archivierung oder Werkstattgebrauch</td></tr>
+<tr><td>Masse-/Filamentschätzung</td><td>Eine Schätzung auf Basis des Volumenkörpers, kein slicer-genaues Angebot</td></tr>
+</table>
+
+<h2>12. Revisionen</h2>
+<p>Eine inhaltliche Geometrieänderung erhält eine neue, explizit gekennzeichnete Revision. Jedes Liefergut ist mit seiner Revision versehen, und ein Verzeichnis listet auf, welche Dateien zu welcher Revision gehören — alte und neue Lieferungen lassen sich nicht verwechseln.</p>
+
+<h2>13. Beispielprompts</h2>
+
+<pre>Szenario: ein einfach bemaßtes Teil
+"Ich brauche einen Handyständer mit 60°-Winkel, 80 mm breitem
+Schlitz, 10 mm Schlitztiefe, stabile Basis. Material: PLA."</pre>
+
+<pre>Szenario: ausgehend von einem Referenzfoto
+"Hier ist ein Foto des Gehäuses, in das dieses Netzteil
+passen muss. Ich brauche einen Deckel mit Kabelaussparung
+und einer Verriegelung, damit er nicht herausfällt."</pre>
+
+<pre>Szenario: mit einer Standardkomponente
+"Ich brauche eine Filamentspulenhalterung mit einem
+608-Lager innen, damit sich die Spule frei dreht."
+
+"Ich brauche einen Kleinteile-Organizer im Gridfinity-System,
+Standardbasis 42 mm."</pre>
+
+<pre>Szenario: mit einem Print-in-Place-Gelenk
+"Ich brauche einen Deckel mit Scharnier, der bereits beweglich
+gedruckt wird, ohne Montage nach dem Drucken — öffnet bis
+90°, Material PLA."</pre>
+
+<pre>Szenario: mit einem Passungstest vor dem vollständigen Druck
+"Bevor ich das gesamte Gehäuse drucke, möchte ich eine kleine
+Testplatte mit ein paar Spielwerten für die Verriegelung drucken,
+damit ich zuerst den richtigen auswählen kann."</pre>
+
+<h2>14. Schnellmodus</h2>
+<p>Nichts von alldem erfordert, die Skill zuerst formal zu installieren. Für einen kleinen oder wiederholten Auftrag liefert eine Beschreibung der Anfrage im Stil von §13 denselben Arbeitsablauf ohne Einrichtungsschritt.</p>
+
+</body>
+</html>
