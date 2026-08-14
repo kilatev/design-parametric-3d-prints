@@ -49,6 +49,10 @@ When a part takes a machine screw via a heat-set insert, size the pilot hole and
 
 Boss outer diameter: pilot hole + 2× minimum wall thickness (1.2–1.6 mm is a common starting wall for the boss, same `min_wall` parameter used elsewhere). FDM holes commonly print slightly undersized (nozzle over-extrudes on tight curves); a test-fit coupon is the reliable way to confirm the pilot hole before committing to the full print, consistent with the test-coupon rule above.
 
+### Machine screw clearance holes and heads (reference the standard, don't retable it)
+
+Plain machine screw geometry (clearance hole diameter, head diameter, counterbore/countersink depth) is tightly standardized — ISO 4762 (socket-head cap screws), ISO 7380 (button-head), and ISO 273 (clearance holes) — and varies far less across manufacturers than heat-set inserts do. Look these up from the relevant standard or the specific screw's datasheet at build time rather than keeping a second copy here that will drift out of date. If a supplied reference image shows the screw (SKILL.md's reference-image inspection step), read the head shape from it — hex socket, button, or flat/countersunk — and pick the matching standard instead of asking the user to name it; still confirm thread size and length, which usually aren't readable from a photo. Record whichever numbers were actually used as named parameters in `parameters.json` (e.g. `screw_clearance_d`, `screw_head_d`, `counterbore_depth`), same as every other dimension in this checklist.
+
 ## 2. Preliminary three-view drawing
 
 Generate SVG and DXF from one parameterized 2D definition before creating BREP solids or meshes.
