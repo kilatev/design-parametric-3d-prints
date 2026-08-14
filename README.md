@@ -4,6 +4,21 @@ Design and revise functional, parameterized parts for FDM 3D printing, including
 
 See [SKILL.md](SKILL.md) for the full workflow.
 
+## Quick-start: prompt instead of skill (recommended)
+
+Loading this as an installed skill costs context on every turn (description
+match) and, once triggered, can anchor the model on its literal step order
+even for tasks that don't need the full ritual. For a quick or repeat job,
+skip installing the skill and instead paste
+[plan/skill-as-prompt.md](plan/skill-as-prompt.md)'s content directly as your
+prompt — it's the same workflow compressed to ~20 lines, with the agent
+asking you for this repo's path up front instead of assuming one.
+
+Trade-off: the short-prompt form omits the `references/`/`assets/` links and
+the full validator/rule detail below. Fall back to installing the skill
+(SKILL.md) for first-time use, complex multi-block assemblies, or whenever a
+validator gate or edge-case rule needs the full explanation.
+
 ## Install (recommended)
 
 Using the [`skills`](https://www.npmjs.com/package/skills) CLI, one line, no manual steps — it detects installed agents (Claude Code, Codex CLI, pi agent harness, etc.) and installs to all of them:
